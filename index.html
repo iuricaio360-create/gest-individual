@@ -44,11 +44,12 @@
             margin: 0 auto;
         }
 
-        /* Header Minimalista */
+        /* Header com Saldo */
         .header {
             text-align: center;
             margin-bottom: 30px;
             padding: 20px 0;
+            position: relative;
         }
 
         .header h1 {
@@ -65,6 +66,33 @@
         .header p {
             color: var(--text-light);
             font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        /* Saldo Atual no Header */
+        .header-balance {
+            background: linear-gradient(135deg, var(--accent), var(--light));
+            color: white;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-balance-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .header-balance-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         /* Data e Hora Atual */
@@ -369,12 +397,12 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* Estilo especial para campo de valor */
-        .form-input.currency-input {
-            text-align: right;
-            font-family: 'Courier New', monospace;
+        /* Campo de valor grande */
+        .form-input.large-input {
+            font-size: 1.3rem;
             font-weight: 500;
-            letter-spacing: 0.5px;
+            padding: 16px 20px;
+            text-align: center;
         }
 
         .type-buttons {
@@ -435,6 +463,17 @@
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
         }
 
+        /* Botão secundário */
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #9ca3af);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
+        }
+
         /* Filtros Simples */
         .filters {
             display: flex;
@@ -450,6 +489,47 @@
             color: var(--text);
             font-size: 0.95rem;
             min-width: 150px;
+        }
+
+        /* Painel de Saldo Inicial */
+        .initial-balance-panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border-top: 4px solid var(--warning);
+        }
+
+        .initial-balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .initial-balance-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .initial-balance-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .initial-balance-form {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Histórico por Ano */
@@ -648,6 +728,14 @@
             .filter-select {
                 min-width: 100%;
             }
+           
+            .header h1 {
+                font-size: 2rem;
+            }
+           
+            .header-balance-value {
+                font-size: 1.8rem;
+            }
         }
 
         /* Animações */
@@ -682,16 +770,47 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Header com Saldo -->
         <header class="header">
             <h1><i class="fas fa-wallet"></i> Minhas Finanças</h1>
             <p>Controle financeiro pessoal simplificado</p>
+            
+            <div class="header-balance">
+                <div class="header-balance-label">Saldo Total Disponível</div>
+                <div class="header-balance-value" id="total-balance-display">R$ 0,00</div>
+            </div>
         </header>
 
         <!-- Data e Hora Atual -->
         <div class="current-time">
             <div class="date" id="current-date-display">Carregando...</div>
             <div class="time" id="current-time-display">Carregando...</div>
+        </div>
+
+        <!-- Painel de Saldo Inicial -->
+        <div class="initial-balance-panel">
+            <div class="initial-balance-header">
+                <h3 class="initial-balance-title">
+                    <i class="fas fa-piggy-bank"></i> Saldo Inicial da Conta
+                </h3>
+                <div class="current-balance-display">
+                    <span style="color: var(--text-light); margin-right: 10px;">Atual:</span>
+                    <span style="font-weight: 600; font-size: 1.2rem;" id="current-initial-balance">R$ 0,00</span>
+                </div>
+            </div>
+            
+            <div class="initial-balance-form">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Digite o valor que você tem na conta:</label>
+                    <input type="text" class="form-input large-input" id="initial-balance-input" placeholder="0,00">
+                </div>
+                <button type="button" class="btn btn-secondary" id="update-initial-balance-btn">
+                    <i class="fas fa-save"></i> Atualizar Saldo
+                </button>
+            </div>
+            <p style="margin-top: 15px; color: var(--text-light); font-size: 0.9rem; text-align: center;">
+                Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
+            </p>
         </div>
 
         <!-- Controle de Data -->
@@ -803,7 +922,7 @@
                    
                     <div class="form-group">
                         <label class="form-label">Valor (R$)</label>
-                        <input type="text" class="form-input currency-input" id="amount" placeholder="0,00" required>
+                        <input type="text" class="form-input large-input" id="amount" placeholder="0,00" required>
                     </div>
                    
                     <div class="form-group">
@@ -883,6 +1002,7 @@
         let currentYear = currentDate.getFullYear();
         let currentMonth = currentDate.getMonth();
         let currency = 'BRL';
+        let initialBalance = 0;
 
         // Categorias padrão
         const defaultCategories = [
@@ -908,7 +1028,7 @@
         // FUNÇÕES DE FORMATAÇÃO DE VALOR
         // =========================================
         
-        // Formata valor para o formato brasileiro (R$ 1.234,56)
+        // Formata valor para o formato brasileiro
         function formatCurrency(value) {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -918,10 +1038,10 @@
 
         // Formata número para string formatada (1.234,56)
         function formatNumberToCurrency(value) {
-            if (!value && value !== 0) return '0,00';
+            if (value === null || value === undefined || value === '') return '0,00';
             
-            // Garante que é um número
-            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            // Converte para número
+            let numValue = typeof value === 'number' ? value : parseFloat(value);
             if (isNaN(numValue)) return '0,00';
             
             // Formata com 2 casas decimais
@@ -937,11 +1057,6 @@
             // Remove tudo que não for número, ponto ou vírgula
             let cleaned = currencyString.replace(/[^\d,.-]/g, '');
             
-            // Se tiver apenas números, assume que são centavos
-            if (/^\d+$/.test(cleaned)) {
-                return parseFloat(cleaned) / 100;
-            }
-            
             // Se tiver vírgula, assume formato brasileiro
             if (cleaned.includes(',')) {
                 // Remove pontos dos milhares e substitui vírgula por ponto
@@ -952,7 +1067,7 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-        // Formata input enquanto digita
+        // Formata input enquanto digita (formato brasileiro)
         function formatCurrencyInput(event) {
             let input = event.target;
             let value = input.value.replace(/\D/g, '');
@@ -964,6 +1079,21 @@
             
             // Converte para número e formata
             let numberValue = parseInt(value) / 100;
+            input.value = formatNumberToCurrency(numberValue);
+        }
+
+        // Formata valor ao sair do campo (blur)
+        function formatCurrencyOnBlur(event) {
+            let input = event.target;
+            let value = input.value;
+            
+            if (value === '') {
+                input.value = '0,00';
+                return;
+            }
+            
+            // Converte para número e formata corretamente
+            let numberValue = parseCurrencyToNumber(value);
             input.value = formatNumberToCurrency(numberValue);
         }
 
@@ -985,11 +1115,6 @@
             if (savedTransactions) {
                 try {
                     transactions = JSON.parse(savedTransactions);
-                    // Garantir que os IDs sejam números
-                    transactions = transactions.map(t => ({
-                        ...t,
-                        id: typeof t.id === 'string' ? parseFloat(t.id) : t.id
-                    }));
                 } catch (e) {
                     console.error('Erro ao carregar transações:', e);
                     transactions = [];
@@ -1009,11 +1134,23 @@
                 categories = defaultCategories;
                 saveCategories();
             }
+
+            // Carregar saldo inicial
+            const savedInitialBalance = localStorage.getItem('minhas-financas-initial-balance');
+            if (savedInitialBalance) {
+                try {
+                    initialBalance = parseFloat(savedInitialBalance) || 0;
+                } catch (e) {
+                    console.error('Erro ao carregar saldo inicial:', e);
+                    initialBalance = 0;
+                }
+            }
         }
 
         function saveData() {
             localStorage.setItem('minhas-financas-transactions', JSON.stringify(transactions));
             localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
+            localStorage.setItem('minhas-financas-initial-balance', initialBalance.toString());
         }
 
         function saveCategories() {
@@ -1023,9 +1160,11 @@
         function initializeApp() {
             // Configurar data atual no formulário
             document.getElementById('transaction-form').reset();
-            const today = new Date();
-            document.getElementById('transaction-date').valueAsDate = today;
-            document.getElementById('transaction-date').value = today.toISOString().split('T')[0];
+            document.getElementById('transaction-date').valueAsDate = new Date();
+           
+            // Preencher campo de saldo inicial
+            document.getElementById('initial-balance-input').value = formatNumberToCurrency(initialBalance);
+            document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
            
             // Inicializar selects de categoria
             updateCategorySelects();
@@ -1045,7 +1184,15 @@
             // Formatação automática do campo de valor
             const amountInput = document.getElementById('amount');
             amountInput.addEventListener('input', formatCurrencyInput);
-            amountInput.addEventListener('blur', formatCurrencyInput);
+            amountInput.addEventListener('blur', formatCurrencyOnBlur);
+            
+            // Formatação do campo de saldo inicial
+            const initialBalanceInput = document.getElementById('initial-balance-input');
+            initialBalanceInput.addEventListener('input', formatCurrencyInput);
+            initialBalanceInput.addEventListener('blur', formatCurrencyOnBlur);
+            
+            // Atualizar saldo inicial
+            document.getElementById('update-initial-balance-btn').addEventListener('click', updateInitialBalance);
             
             // Seletor de tipo
             document.querySelectorAll('.type-btn').forEach(btn => {
@@ -1112,10 +1259,59 @@
             updateDashboard();
             updateRecentTransactions();
             updateYearHistory();
+            updateTotalBalanceDisplay();
         }
 
         // =========================================
-        // TRANSAÇÕES (CORRIGIDAS)
+        // SALDO INICIAL
+        // =========================================
+        function updateInitialBalance() {
+            const input = document.getElementById('initial-balance-input');
+            const value = parseCurrencyToNumber(input.value);
+            
+            if (isNaN(value) || value < 0) {
+                showNotification('Por favor, digite um valor válido!', 'error');
+                return;
+            }
+            
+            initialBalance = value;
+            saveData();
+            updateTotalBalanceDisplay();
+            document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
+            showNotification('Saldo inicial atualizado com sucesso!');
+        }
+
+        function updateTotalBalanceDisplay() {
+            const monthTransactions = getMonthTransactions(currentYear, currentMonth);
+            
+            let totalIncome = 0;
+            let totalExpense = 0;
+            
+            monthTransactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncome += transaction.amount;
+                } else {
+                    totalExpense += transaction.amount;
+                }
+            });
+            
+            const monthBalance = totalIncome - totalExpense;
+            const totalBalance = initialBalance + monthBalance;
+            
+            // Atualizar display no header
+            document.getElementById('total-balance-display').textContent = formatCurrency(totalBalance);
+            
+            // Cor do saldo (verde para positivo, vermelho para negativo)
+            const balanceElement = document.getElementById('total-balance-display');
+            if (totalBalance >= 0) {
+                balanceElement.style.color = 'var(--success)';
+            } else {
+                balanceElement.style.color = 'var(--danger)';
+            }
+        }
+
+        // =========================================
+        // TRANSAÇÕES
         // =========================================
         function addTransaction(e) {
             e.preventDefault();
@@ -1200,6 +1396,7 @@
         // =========================================
         function updateDashboard() {
             updateSummary();
+            updateTotalBalanceDisplay();
         }
 
         function updateSummary() {
@@ -1230,9 +1427,8 @@
             const categoryFilter = document.getElementById('recent-filter-category').value;
             const periodFilter = document.getElementById('recent-filter-period').value;
            
-            let filtered = [...transactions]; // Cria uma cópia
+            let filtered = [...transactions];
            
-            // Filtrar por período
             const now = new Date();
             if (periodFilter === 'current') {
                 filtered = getMonthTransactions(currentYear, currentMonth);
@@ -1245,22 +1441,16 @@
                 sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
                 filtered = filtered.filter(t => new Date(t.date) >= sevenDaysAgo);
             }
-            // 'all' não filtra por data
            
-            // Filtrar por tipo
             if (typeFilter) {
                 filtered = filtered.filter(t => t.type === typeFilter);
             }
            
-            // Filtrar por categoria
             if (categoryFilter) {
                 filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
             }
            
-            // Ordenar por data (mais recente primeiro)
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-           
-            // Limitar a 20 transações
             filtered = filtered.slice(0, 20);
            
             if (filtered.length === 0) {
@@ -1316,22 +1506,18 @@
             const select = document.getElementById('year-selector');
             select.innerHTML = '';
            
-            // Coletar anos únicos
             const yearSet = new Set();
             transactions.forEach(t => {
                 const date = new Date(t.date);
                 yearSet.add(date.getFullYear());
             });
            
-            // Adicionar anos de 2020 a 2030 por padrão
             for (let year = 2020; year <= 2030; year++) {
                 yearSet.add(year);
             }
            
-            // Converter para array e ordenar
             const years = Array.from(yearSet).sort((a, b) => b - a);
            
-            // Adicionar opções
             years.forEach(year => {
                 const option = document.createElement('option');
                 option.value = year;
@@ -1347,10 +1533,8 @@
             const selectedYear = parseInt(document.getElementById('year-selector').value) || currentYear;
             const container = document.getElementById('year-history');
            
-            // Atualizar ano selecionado no título
             document.getElementById('selected-year').textContent = selectedYear;
            
-            // Calcular totais do ano
             let yearIncome = 0;
             let yearExpense = 0;
            
@@ -1401,7 +1585,6 @@
                 `;
             }
            
-            // Atualizar resumo do ano
             const yearBalance = yearIncome - yearExpense;
             document.getElementById('year-total-income').textContent = formatCurrency(yearIncome);
             document.getElementById('year-total-expense').textContent = formatCurrency(yearExpense);
@@ -1429,7 +1612,6 @@
             const monthTransactions = getMonthTransactions(year, month);
             const container = document.getElementById('month-transactions');
            
-            // Ordenar por data (mais recente primeiro)
             monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
            
             if (monthTransactions.length === 0) {
@@ -1475,10 +1657,7 @@
                 }).join('');
             }
            
-            // Mostrar painel de detalhes
             document.getElementById('month-details').style.display = 'block';
-           
-            // Rolar para o painel de detalhes
             document.getElementById('month-details').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1493,7 +1672,6 @@
             const select = document.getElementById('category');
             select.innerHTML = '';
            
-            // Filtrar categorias por tipo
             const filteredCategories = categories.filter(c => c.type === type);
            
             if (filteredCategories.length === 0) {
@@ -1513,7 +1691,6 @@
         }
 
         function updateCategorySelects() {
-            // Atualizar filtro de categorias das transações recentes
             const filterSelect = document.getElementById('recent-filter-category');
             filterSelect.innerHTML = '<option value="">Todas categorias</option>';
            
@@ -1524,7 +1701,6 @@
                 filterSelect.appendChild(option);
             });
            
-            // Inicializar seletor de categoria para income
             updateCategorySelect('income');
         }
 
@@ -1579,7 +1755,6 @@
             document.getElementById('current-year').textContent = currentYear;
             document.getElementById('current-month').textContent = monthNames[currentMonth];
            
-            // Atualizar seletor de ano
             document.getElementById('year-selector').value = currentYear;
         }
 
@@ -1602,7 +1777,6 @@
         }
 
         function showNotification(message, type = 'success') {
-            // Criar notificação
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -1629,7 +1803,6 @@
            
             document.body.appendChild(notification);
            
-            // Remover após 3 segundos
             setTimeout(() => {
                 notification.style.animation = 'fadeIn 0.3s ease reverse';
                 setTimeout(() => {
