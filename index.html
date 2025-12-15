@@ -13,8 +13,11 @@
             --accent: #3b82f6;
             --light: #60a5fa;
             --success: #10b981;
+            --success-light: #34d399;
             --danger: #ef4444;
+            --danger-light: #f87171;
             --warning: #f59e0b;
+            --warning-light: #fbbf24;
             --text: #1f2937;
             --text-light: #6b7280;
             --bg: #f8fafc;
@@ -22,6 +25,9 @@
             --border: #e5e7eb;
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             --radius: 12px;
+            --balance-positive: linear-gradient(135deg, #059669, #10b981);
+            --balance-negative: linear-gradient(135deg, #dc2626, #ef4444);
+            --balance-neutral: linear-gradient(135deg, #4b5563, #6b7280);
         }
 
         * {
@@ -69,30 +75,44 @@
             margin-bottom: 20px;
         }
 
-        /* Saldo Atual no Header */
+        /* Saldo Atual no Header - CORES MELHORADAS */
         .header-balance {
-            background: linear-gradient(135deg, var(--accent), var(--light));
+            background: var(--balance-neutral);
             color: white;
             padding: 20px 30px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             max-width: 400px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .header-balance.positive {
+            background: var(--balance-positive);
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2), 0 2px 4px -1px rgba(5, 150, 105, 0.1);
+        }
+
+        .header-balance.negative {
+            background: var(--balance-negative);
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2), 0 2px 4px -1px rgba(220, 38, 38, 0.1);
         }
 
         .header-balance-label {
-            font-size: 1rem;
+            font-size: 0.95rem;
             opacity: 0.9;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         .header-balance-value {
             font-size: 2.2rem;
             font-weight: 700;
             letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         /* Data e Hora Atual */
@@ -228,8 +248,8 @@
             color: white;
         }
 
-        .summary-card.income .summary-icon { background: linear-gradient(135deg, var(--success), #34d399); }
-        .summary-card.expense .summary-icon { background: linear-gradient(135deg, var(--danger), #f87171); }
+        .summary-card.income .summary-icon { background: linear-gradient(135deg, var(--success), var(--success-light)); }
+        .summary-card.expense .summary-icon { background: linear-gradient(135deg, var(--danger), var(--danger-light)); }
         .summary-card.balance .summary-icon { background: linear-gradient(135deg, var(--accent), var(--light)); }
 
         .summary-value {
@@ -320,8 +340,8 @@
             flex-shrink: 0;
         }
 
-        .income .transaction-icon { background: linear-gradient(135deg, var(--success), #34d399); }
-        .expense .transaction-icon { background: linear-gradient(135deg, var(--danger), #f87171); }
+        .income .transaction-icon { background: linear-gradient(135deg, var(--success), var(--success-light)); }
+        .expense .transaction-icon { background: linear-gradient(135deg, var(--danger), var(--danger-light)); }
 
         .transaction-info {
             flex: 1;
@@ -491,14 +511,14 @@
             min-width: 150px;
         }
 
-        /* Painel de Saldo Inicial */
+        /* Painel de Saldo Inicial - CORES MELHORADAS */
         .initial-balance-panel {
-            background: var(--card);
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
             border-radius: var(--radius);
             padding: 25px;
             box-shadow: var(--shadow);
             margin-bottom: 30px;
-            border-top: 4px solid var(--warning);
+            border: 1px solid #fbbf24;
         }
 
         .initial-balance-header {
@@ -511,7 +531,7 @@
         }
 
         .initial-balance-title {
-            color: var(--primary);
+            color: #92400e;
             font-size: 1.3rem;
             font-weight: 600;
             display: flex;
@@ -530,6 +550,13 @@
             .initial-balance-form {
                 grid-template-columns: 1fr;
             }
+        }
+
+        .current-balance-display {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #fbbf24;
         }
 
         /* Histórico por Ano */
@@ -775,7 +802,7 @@
             <h1><i class="fas fa-wallet"></i> Minhas Finanças</h1>
             <p>Controle financeiro pessoal simplificado</p>
             
-            <div class="header-balance">
+            <div class="header-balance" id="header-balance">
                 <div class="header-balance-label">Saldo Total Disponível</div>
                 <div class="header-balance-value" id="total-balance-display">R$ 0,00</div>
             </div>
@@ -794,21 +821,21 @@
                     <i class="fas fa-piggy-bank"></i> Saldo Inicial da Conta
                 </h3>
                 <div class="current-balance-display">
-                    <span style="color: var(--text-light); margin-right: 10px;">Atual:</span>
-                    <span style="font-weight: 600; font-size: 1.2rem;" id="current-initial-balance">R$ 0,00</span>
+                    <span style="color: #92400e; margin-right: 10px;">Atual:</span>
+                    <span style="font-weight: 600; font-size: 1.2rem; color: #92400e;" id="current-initial-balance">R$ 0,00</span>
                 </div>
             </div>
             
             <div class="initial-balance-form">
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label">Digite o valor que você tem na conta:</label>
+                    <label class="form-label" style="color: #92400e;">Digite o valor que você tem na conta:</label>
                     <input type="text" class="form-input large-input" id="initial-balance-input" placeholder="0,00">
                 </div>
                 <button type="button" class="btn btn-secondary" id="update-initial-balance-btn">
                     <i class="fas fa-save"></i> Atualizar Saldo
                 </button>
             </div>
-            <p style="margin-top: 15px; color: var(--text-light); font-size: 0.9rem; text-align: center;">
+            <p style="margin-top: 15px; color: #92400e; font-size: 0.9rem; text-align: center; opacity: 0.8;">
                 Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
             </p>
         </div>
@@ -1040,11 +1067,9 @@
         function formatNumberToCurrency(value) {
             if (value === null || value === undefined || value === '') return '0,00';
             
-            // Converte para número
             let numValue = typeof value === 'number' ? value : parseFloat(value);
             if (isNaN(numValue)) return '0,00';
             
-            // Formata com 2 casas decimais
             return numValue.toFixed(2)
                 .replace('.', ',')
                 .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -1054,12 +1079,9 @@
         function parseCurrencyToNumber(currencyString) {
             if (!currencyString) return 0;
             
-            // Remove tudo que não for número, ponto ou vírgula
             let cleaned = currencyString.replace(/[^\d,.-]/g, '');
             
-            // Se tiver vírgula, assume formato brasileiro
             if (cleaned.includes(',')) {
-                // Remove pontos dos milhares e substitui vírgula por ponto
                 cleaned = cleaned.replace(/\./g, '').replace(',', '.');
             }
             
@@ -1067,7 +1089,7 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-        // Formata input enquanto digita (formato brasileiro)
+        // Formata input enquanto digita
         function formatCurrencyInput(event) {
             let input = event.target;
             let value = input.value.replace(/\D/g, '');
@@ -1077,12 +1099,11 @@
                 return;
             }
             
-            // Converte para número e formata
             let numberValue = parseInt(value) / 100;
             input.value = formatNumberToCurrency(numberValue);
         }
 
-        // Formata valor ao sair do campo (blur)
+        // Formata valor ao sair do campo
         function formatCurrencyOnBlur(event) {
             let input = event.target;
             let value = input.value;
@@ -1092,7 +1113,6 @@
                 return;
             }
             
-            // Converte para número e formata corretamente
             let numberValue = parseCurrencyToNumber(value);
             input.value = formatNumberToCurrency(numberValue);
         }
@@ -1215,18 +1235,14 @@
             document.getElementById('recent-filter-category').addEventListener('change', updateRecentTransactions);
             document.getElementById('recent-filter-period').addEventListener('change', updateRecentTransactions);
             document.getElementById('year-selector').addEventListener('change', updateYearHistory);
-
-            // Inicializar tipo como "income"
-            document.querySelector('.type-btn[data-type="income"]').click();
         }
 
         // =========================================
-        // DATA E HORA ATUAL (BRASIL)
+        // DATA E HORA ATUAL
         // =========================================
         function updateCurrentTime() {
             const now = new Date();
            
-            // Formatar data
             const dateOptions = {
                 weekday: 'long',
                 year: 'numeric',
@@ -1237,7 +1253,6 @@
             const dateFormatter = new Intl.DateTimeFormat('pt-BR', dateOptions);
             const dateString = dateFormatter.format(now);
            
-            // Formatar hora
             const timeOptions = {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -1299,14 +1314,18 @@
             const totalBalance = initialBalance + monthBalance;
             
             // Atualizar display no header
-            document.getElementById('total-balance-display').textContent = formatCurrency(totalBalance);
-            
-            // Cor do saldo (verde para positivo, vermelho para negativo)
             const balanceElement = document.getElementById('total-balance-display');
-            if (totalBalance >= 0) {
-                balanceElement.style.color = 'var(--success)';
+            const headerBalance = document.getElementById('header-balance');
+            
+            balanceElement.textContent = formatCurrency(totalBalance);
+            
+            // Atualizar cores do header baseado no saldo
+            if (totalBalance > 0) {
+                headerBalance.className = 'header-balance positive';
+            } else if (totalBalance < 0) {
+                headerBalance.className = 'header-balance negative';
             } else {
-                balanceElement.style.color = 'var(--danger)';
+                headerBalance.className = 'header-balance';
             }
         }
 
@@ -1361,7 +1380,6 @@
             const newAmount = prompt('Novo valor (R$):', currentValue);
             if (newAmount === null) return;
             
-            // Converter valor formatado para número
             const parsedAmount = parseCurrencyToNumber(newAmount);
             if (isNaN(parsedAmount) || parsedAmount <= 0) {
                 showNotification('Valor inválido!', 'error');
@@ -1415,7 +1433,6 @@
            
             const balance = totalIncome - totalExpense;
            
-            // Atualizar cards
             document.getElementById('total-income').textContent = formatCurrency(totalIncome);
             document.getElementById('total-expense').textContent = formatCurrency(totalExpense);
             document.getElementById('total-balance').textContent = formatCurrency(balance);
@@ -1814,4 +1831,4 @@
         }
     </script>
 </body>
-                    </html>
+</html>
