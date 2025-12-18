@@ -320,7 +320,7 @@
             border: 1px solid var(--success);
         }
 
-        /* Controle de Data */
+        /* Controle de Data - CALENDÁRIO INFINITO */
         .date-control {
             background: var(--card);
             border-radius: var(--radius);
@@ -389,6 +389,18 @@
             background: white;
             border-radius: 8px;
             border: 2px solid var(--border);
+        }
+
+        /* Seletor de ano customizado para calendário infinito */
+        .year-select {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            font-size: 1rem;
+            min-width: 120px;
+            cursor: pointer;
         }
 
         /* Botão Verde para Saldo Inicial */
@@ -531,6 +543,8 @@
             font-size: 1.2rem;
             color: white;
             flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
         }
 
         .income .transaction-icon { background: linear-gradient(135deg, var(--success), var(--success-light)); }
@@ -687,11 +701,12 @@
             box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
         }
 
-        /* Filtros Simples */
+        /* Filtros Melhorados - COM CALENDÁRIO INFINITO */
         .filters {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .filter-select {
@@ -702,6 +717,65 @@
             color: var(--text);
             font-size: 0.95rem;
             min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-year-input {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            font-size: 0.95rem;
+            width: 120px;
+        }
+
+        /* Painel de Saldo Inicial - CORES MELHORADAS */
+        .initial-balance-panel {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid #fbbf24;
+        }
+
+        .initial-balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .initial-balance-title {
+            color: #92400e;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .initial-balance-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .initial-balance-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .current-balance-display {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #fbbf24;
         }
 
         /* Histórico por Ano */
@@ -846,6 +920,71 @@
             font-weight: 600;
         }
 
+        /* Upload de Imagem para Categorias */
+        .image-upload-container {
+            margin-top: 15px;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-container:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .image-upload-label {
+            display: block;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .image-upload-label i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+
+        .remove-image-btn {
+            margin-top: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Seções do site */
+        .site-section {
+            display: none;
+        }
+
+        .site-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
         /* Estado Vazio */
         .empty-state {
             text-align: center;
@@ -857,16 +996,6 @@
             font-size: 3.5rem;
             margin-bottom: 20px;
             color: var(--border);
-        }
-
-        /* Seções do site */
-        .site-section {
-            display: none;
-        }
-
-        .site-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
         }
 
         /* Utilitários */
@@ -918,9 +1047,10 @@
            
             .filters {
                 flex-direction: column;
+                align-items: stretch;
             }
            
-            .filter-select {
+            .filter-select, .filter-year-input {
                 min-width: 100%;
             }
            
@@ -1015,21 +1145,7 @@
             </a>
         </div>
         
-        <div class="menu-section">
-            <div class="menu-section-title">Ações</div>
-            <a href="#" class="menu-item" id="export-data">
-                <i class="fas fa-download"></i>
-                <span>Exportar Dados</span>
-            </a>
-            <a href="#" class="menu-item" id="import-data">
-                <i class="fas fa-upload"></i>
-                <span>Importar Dados</span>
-            </a>
-            <a href="#" class="menu-item" id="reset-data">
-                <i class="fas fa-trash-alt"></i>
-                <span>Limpar Dados</span>
-            </a>
-        </div>
+        <!-- REMOVIDA A SEÇÃO AÇÕES CONFORME SOLICITADO -->
     </div>
 
     <div class="container">
@@ -1079,7 +1195,7 @@
                 </p>
             </div>
 
-            <!-- Controle de Data -->
+            <!-- Controle de Data COM CALENDÁRIO INFINITO -->
             <div class="date-control">
                 <div class="date-display">
                     <span id="current-month-year">Janeiro 2024</span>
@@ -1211,7 +1327,7 @@
             </div>
         </section>
         
-        <!-- Seção Transações -->
+        <!-- Seção Transações COM CALENDÁRIO INFINITO -->
         <section id="transactions" class="site-section">
             <div class="header">
                 <h1><i class="fas fa-exchange-alt"></i> Todas as Transações</h1>
@@ -1230,9 +1346,8 @@
                         <select class="filter-select" id="all-filter-category">
                             <option value="">Todas categorias</option>
                         </select>
-                        <select class="filter-select" id="all-filter-year">
-                            <option value="">Todos os anos</option>
-                        </select>
+                        <!-- Ano com input numérico para calendário infinito -->
+                        <input type="number" class="filter-year-input" id="all-filter-year" placeholder="Ano (ex: 2024)" min="2000" max="2100">
                         <select class="filter-select" id="all-filter-month">
                             <option value="">Todos os meses</option>
                             <option value="0">Janeiro</option>
@@ -1256,7 +1371,7 @@
             </div>
         </section>
         
-        <!-- Seção Histórico -->
+        <!-- Seção Histórico COM CALENDÁRIO INFINITO -->
         <section id="history" class="site-section">
             <div class="header">
                 <h1><i class="fas fa-history"></i> Histórico Financeiro</h1>
@@ -1286,9 +1401,11 @@
                 <div class="panel-header">
                     <h3 class="panel-title">Histórico Mensal</h3>
                     <div class="filters">
-                        <select class="filter-select" id="year-selector">
-                            <!-- Anos serão carregados aqui -->
-                        </select>
+                        <!-- Ano com input numérico para calendário infinito -->
+                        <input type="number" class="filter-year-input" id="year-selector-input" placeholder="Digite o ano" min="2000" max="2100" value="2024">
+                        <button class="btn btn-primary" id="load-year-history" style="width: auto; padding: 10px 20px;">
+                            <i class="fas fa-search"></i> Carregar
+                        </button>
                     </div>
                 </div>
                
@@ -1298,7 +1415,7 @@
             </div>
         </section>
         
-        <!-- Seção Relatórios -->
+        <!-- Seção Relatórios MELHORADA -->
         <section id="reports" class="site-section">
             <div class="header">
                 <h1><i class="fas fa-chart-pie"></i> Relatórios</h1>
@@ -1333,22 +1450,41 @@
             
             <div class="transactions-panel">
                 <div class="panel-header">
-                    <h3 class="panel-title">Gráficos de Categorias</h3>
+                    <h3 class="panel-title">Filtros para Relatórios</h3>
                     <div class="filters">
-                        <select class="filter-select" id="chart-year">
-                            <option value="">Selecione o ano</option>
+                        <!-- Ano com input numérico para calendário infinito -->
+                        <input type="number" class="filter-year-input" id="report-year" placeholder="Ano (ex: 2024)" min="2000" max="2100">
+                        <select class="filter-select" id="report-month">
+                            <option value="">Todos os meses</option>
+                            <option value="0">Janeiro</option>
+                            <option value="1">Fevereiro</option>
+                            <option value="2">Março</option>
+                            <option value="3">Abril</option>
+                            <option value="4">Maio</option>
+                            <option value="5">Junho</option>
+                            <option value="6">Julho</option>
+                            <option value="7">Agosto</option>
+                            <option value="8">Setembro</option>
+                            <option value="9">Outubro</option>
+                            <option value="10">Novembro</option>
+                            <option value="11">Dezembro</option>
                         </select>
-                        <select class="filter-select" id="chart-type">
+                        <select class="filter-select" id="report-type">
                             <option value="expense">Gastos</option>
                             <option value="income">Ganhos</option>
                         </select>
+                        <button class="btn btn-primary" id="generate-report" style="width: auto; padding: 10px 20px;">
+                            <i class="fas fa-chart-bar"></i> Gerar Relatório
+                        </button>
                     </div>
                 </div>
-                <div id="charts-container" style="padding: 20px; text-align: center;">
-                    <p style="color: var(--text-light);">Gráficos serão exibidos aqui em breve.</p>
-                    <div style="margin-top: 30px; padding: 40px; background: var(--bg); border-radius: var(--radius);">
-                        <i class="fas fa-chart-pie" style="font-size: 3rem; color: var(--border); margin-bottom: 20px;"></i>
-                        <p>Funcionalidade de gráficos em desenvolvimento</p>
+                <div id="charts-container" style="padding: 20px;">
+                    <div id="report-results" style="text-align: center;">
+                        <p style="color: var(--text-light);">Use os filtros acima para gerar relatórios detalhados.</p>
+                        <div style="margin-top: 30px; padding: 40px; background: var(--bg); border-radius: var(--radius);">
+                            <i class="fas fa-chart-pie" style="font-size: 3rem; color: var(--border); margin-bottom: 20px;"></i>
+                            <p>Relatórios detalhados serão gerados aqui</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1402,7 +1538,7 @@
             </div>
         </section>
         
-        <!-- Seção Categorias -->
+        <!-- Seção Categorias COM UPLOAD DE IMAGEM -->
         <section id="categories" class="site-section">
             <div class="header">
                 <h1><i class="fas fa-tags"></i> Categorias</h1>
@@ -1422,8 +1558,8 @@
                     </div>
                 </div>
                 
-                <div class="form-panel" id="category-form-container">
-                    <h3 class="form-title">Adicionar/Editar Categoria</h3>
+                <div class="form-panel" id="category-form-container" style="display: none;">
+                    <h3 class="form-title" id="category-form-title">Adicionar Nova Categoria</h3>
                     <form id="category-form">
                         <div class="form-group">
                             <label class="form-label">Nome da Categoria</label>
@@ -1444,7 +1580,7 @@
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Ícone</label>
+                            <label class="form-label">Ícone (FontAwesome)</label>
                             <select class="form-select" id="category-icon">
                                 <option value="fas fa-question">Padrão</option>
                                 <option value="fas fa-utensils">Alimentação</option>
@@ -1458,6 +1594,26 @@
                                 <option value="fas fa-laptop-code">Freelance</option>
                                 <option value="fas fa-chart-line">Investimentos</option>
                             </select>
+                        </div>
+                        
+                        <!-- Upload de imagem -->
+                        <div class="form-group">
+                            <label class="form-label">Ou faça upload de uma imagem</label>
+                            <div class="image-upload-container">
+                                <label class="image-upload-label" for="category-image-upload">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <div>Clique para fazer upload de uma imagem</div>
+                                    <div style="font-size: 0.8rem; margin-top: 5px;">Formatos: JPG, PNG, GIF (Máx. 1MB)</div>
+                                </label>
+                                <input type="file" class="image-upload-input" id="category-image-upload" accept="image/*">
+                            </div>
+                            <div class="image-preview" id="category-image-preview">
+                                <img id="category-image-preview-img" src="">
+                                <button type="button" class="remove-image-btn" id="remove-category-image">
+                                    <i class="fas fa-trash"></i> Remover Imagem
+                                </button>
+                            </div>
+                            <input type="hidden" id="category-image-base64">
                         </div>
                         
                         <button type="submit" class="btn btn-primary" id="save-category-btn">
@@ -1503,26 +1659,6 @@
                     Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
                 </p>
             </div>
-            
-            <div class="transactions-panel" style="margin-top: 30px;">
-                <h3 class="panel-title">Contas Adicionais</h3>
-                <p style="color: var(--text-light); margin-bottom: 20px;">Adicione outras contas para um controle mais detalhado</p>
-                
-                <div id="additional-accounts">
-                    <!-- Contas adicionais serão listadas aqui -->
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-plus-circle"></i>
-                        </div>
-                        <p>Nenhuma conta adicional cadastrada</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px;">Clique em "Adicionar Conta" para começar</p>
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary" id="add-account-btn" style="margin-top: 20px;">
-                    <i class="fas fa-plus"></i> Adicionar Conta
-                </button>
-            </div>
         </section>
 
         <!-- Detalhes do Mês -->
@@ -1551,6 +1687,7 @@
         let currency = 'BRL';
         let initialBalance = 0;
         let currentSection = 'dashboard';
+        let editingCategoryId = null;
 
         // Categorias padrão
         const defaultCategories = [
@@ -1712,12 +1849,13 @@
             // Inicializar selects de categoria
             updateCategorySelects();
            
-            // Inicializar filtros
-            updateYearFilter();
-            updateYearSelector();
-           
             // Configurar controles de data
             updateDateDisplay();
+            
+            // Configurar ano atual nos filtros
+            document.getElementById('year-selector-input').value = currentYear;
+            document.getElementById('all-filter-year').value = currentYear;
+            document.getElementById('report-year').value = currentYear;
             
             // Atualizar relatórios
             updateReports();
@@ -1739,22 +1877,6 @@
                         toggleMenu();
                     }
                 });
-            });
-            
-            // Ações do menu
-            document.getElementById('export-data').addEventListener('click', function(e) {
-                e.preventDefault();
-                exportData();
-            });
-            
-            document.getElementById('import-data').addEventListener('click', function(e) {
-                e.preventDefault();
-                importData();
-            });
-            
-            document.getElementById('reset-data').addEventListener('click', function(e) {
-                e.preventDefault();
-                resetData();
             });
 
             // Formulário de transação
@@ -1787,7 +1909,7 @@
                 });
             });
 
-            // Controles de data
+            // Controles de data (CALENDÁRIO INFINITO)
             document.getElementById('prev-year').addEventListener('click', () => changeYear(-1));
             document.getElementById('next-year').addEventListener('click', () => changeYear(1));
             document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
@@ -1798,13 +1920,25 @@
             document.getElementById('recent-filter-type').addEventListener('change', updateRecentTransactions);
             document.getElementById('recent-filter-category').addEventListener('change', updateRecentTransactions);
             document.getElementById('recent-filter-period').addEventListener('change', updateRecentTransactions);
-            document.getElementById('year-selector').addEventListener('change', updateYearHistory);
             
-            // Filtros de todas as transações
+            // Filtros de todas as transações (CALENDÁRIO INFINITO)
             document.getElementById('all-filter-type').addEventListener('change', updateAllTransactions);
             document.getElementById('all-filter-category').addEventListener('change', updateAllTransactions);
-            document.getElementById('all-filter-year').addEventListener('change', updateAllTransactions);
+            document.getElementById('all-filter-year').addEventListener('input', updateAllTransactions);
             document.getElementById('all-filter-month').addEventListener('change', updateAllTransactions);
+            
+            // Histórico (CALENDÁRIO INFINITO)
+            document.getElementById('load-year-history').addEventListener('click', function() {
+                const year = parseInt(document.getElementById('year-selector-input').value);
+                if (year && year >= 2000 && year <= 2100) {
+                    updateYearHistory(year);
+                } else {
+                    showNotification('Por favor, digite um ano válido (2000-2100)', 'error');
+                }
+            });
+            
+            // Relatórios (CALENDÁRIO INFINITO)
+            document.getElementById('generate-report').addEventListener('click', generateReport);
             
             // Configurações
             document.getElementById('save-settings').addEventListener('click', saveSettings);
@@ -1814,8 +1948,9 @@
             document.getElementById('cancel-category-btn').addEventListener('click', hideCategoryForm);
             document.getElementById('category-form').addEventListener('submit', saveCategory);
             
-            // Contas adicionais
-            document.getElementById('add-account-btn').addEventListener('click', addAccount);
+            // Upload de imagem para categorias
+            document.getElementById('category-image-upload').addEventListener('change', handleCategoryImageUpload);
+            document.getElementById('remove-category-image').addEventListener('click', removeCategoryImage);
         }
 
         // =========================================
@@ -1858,6 +1993,10 @@
                     updateReports();
                 } else if (sectionId === 'categories') {
                     updateCategoriesList();
+                } else if (sectionId === 'history') {
+                    const currentYear = new Date().getFullYear();
+                    document.getElementById('year-selector-input').value = currentYear;
+                    updateYearHistory(currentYear);
                 }
             }
         }
@@ -1898,7 +2037,7 @@
         function updateUI() {
             updateDashboard();
             updateRecentTransactions();
-            updateYearHistory();
+            updateYearHistory(currentYear);
             updateTotalBalanceDisplay();
             updateAllTransactions();
         }
@@ -2121,10 +2260,15 @@
                 const date = new Date(transaction.date);
                 const isToday = date.toDateString() === new Date().toDateString();
                
+                // Verificar se a categoria tem imagem
+                const iconStyle = category?.image 
+                    ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                    : `background: ${category?.color || '#3b82f6'};`;
+               
                 return `
                     <div class="transaction-item ${transaction.type}">
-                        <div class="transaction-icon" style="background: ${category?.color || '#3b82f6'}">
-                            <i class="${category?.icon || 'fas fa-question'}"></i>
+                        <div class="transaction-icon" style="${iconStyle}">
+                            ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
                         </div>
                         <div class="transaction-info">
                             <div class="transaction-name">${transaction.description}</div>
@@ -2150,7 +2294,7 @@
         }
 
         // =========================================
-        // TODAS AS TRANSAÇÕES
+        // TODAS AS TRANSAÇÕES COM CALENDÁRIO INFINITO
         // =========================================
         function updateAllTransactions() {
             const container = document.getElementById('all-transactions');
@@ -2171,12 +2315,15 @@
                 filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
             }
            
-            // Filtrar por ano
+            // Filtrar por ano (CALENDÁRIO INFINITO)
             if (yearFilter) {
-                filtered = filtered.filter(t => {
-                    const date = new Date(t.date);
-                    return date.getFullYear() === parseInt(yearFilter);
-                });
+                const year = parseInt(yearFilter);
+                if (!isNaN(year) && year >= 2000 && year <= 2100) {
+                    filtered = filtered.filter(t => {
+                        const date = new Date(t.date);
+                        return date.getFullYear() === year;
+                    });
+                }
             }
            
             // Filtrar por mês
@@ -2208,10 +2355,15 @@
                 const date = new Date(transaction.date);
                 const isToday = date.toDateString() === new Date().toDateString();
                
+                // Verificar se a categoria tem imagem
+                const iconStyle = category?.image 
+                    ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                    : `background: ${category?.color || '#3b82f6'};`;
+               
                 return `
                     <div class="transaction-item ${transaction.type}">
-                        <div class="transaction-icon" style="background: ${category?.color || '#3b82f6'}">
-                            <i class="${category?.icon || 'fas fa-question'}"></i>
+                        <div class="transaction-icon" style="${iconStyle}">
+                            ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
                         </div>
                         <div class="transaction-info">
                             <div class="transaction-name">${transaction.description}</div>
@@ -2237,7 +2389,7 @@
         }
 
         // =========================================
-        // RELATÓRIOS
+        // RELATÓRIOS MELHORADOS
         // =========================================
         function updateReports() {
             // Calcular totais
@@ -2264,8 +2416,105 @@
             document.getElementById('report-savings').textContent = savingsRate.toFixed(1) + '%';
         }
 
+        function generateReport() {
+            const yearInput = document.getElementById('report-year').value;
+            const monthSelect = document.getElementById('report-month').value;
+            const typeSelect = document.getElementById('report-type').value;
+            
+            // Validar ano (CALENDÁRIO INFINITO)
+            const year = parseInt(yearInput);
+            if (!year || year < 2000 || year > 2100) {
+                showNotification('Por favor, digite um ano válido (2000-2100)', 'error');
+                return;
+            }
+            
+            let filtered = transactions.filter(t => {
+                const date = new Date(t.date);
+                const yearMatch = date.getFullYear() === year;
+                const monthMatch = monthSelect === '' || date.getMonth() === parseInt(monthSelect);
+                const typeMatch = t.type === typeSelect;
+                
+                return yearMatch && monthMatch && typeMatch;
+            });
+            
+            // Calcular totais por categoria
+            const categoryTotals = {};
+            filtered.forEach(transaction => {
+                const category = categories.find(c => c.id === transaction.categoryId);
+                const categoryName = category ? category.name : 'Sem categoria';
+                
+                if (!categoryTotals[categoryName]) {
+                    categoryTotals[categoryName] = 0;
+                }
+                categoryTotals[categoryName] += transaction.amount;
+            });
+            
+            // Ordenar categorias por valor
+            const sortedCategories = Object.entries(categoryTotals)
+                .sort((a, b) => b[1] - a[1]);
+            
+            // Gerar HTML do relatório
+            const reportContainer = document.getElementById('report-results');
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            
+            const monthName = monthSelect === '' ? 'Todos os meses' : monthNames[parseInt(monthSelect)];
+            const typeName = typeSelect === 'income' ? 'Ganhos' : 'Gastos';
+            
+            let html = `
+                <h3 style="color: var(--primary); margin-bottom: 20px;">
+                    Relatório de ${typeName} - ${monthName} de ${year}
+                </h3>
+                <p style="color: var(--text-light); margin-bottom: 30px;">
+                    Total: <strong>${formatCurrency(filtered.reduce((sum, t) => sum + t.amount, 0))}</strong> | 
+                    Transações: <strong>${filtered.length}</strong>
+                </p>
+            `;
+            
+            if (sortedCategories.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <p>Nenhuma transação encontrada</p>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="background: var(--bg); border-radius: var(--radius); padding: 20px;">
+                        <h4 style="color: var(--text); margin-bottom: 15px;">Distribuição por Categoria</h4>
+                `;
+                
+                sortedCategories.forEach(([categoryName, total]) => {
+                    const percentage = (total / filtered.reduce((sum, t) => sum + t.amount, 0)) * 100;
+                    const category = categories.find(c => c.name === categoryName);
+                    const color = category ? category.color : '#3b82f6';
+                    
+                    html += `
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-weight: 500;">${categoryName}</span>
+                                <span style="font-weight: 600;">${formatCurrency(total)} (${percentage.toFixed(1)}%)</span>
+                            </div>
+                            <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: ${color}; width: ${percentage}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            reportContainer.innerHTML = html;
+            showNotification('Relatório gerado com sucesso!');
+        }
+
         // =========================================
-        // CATEGORIAS
+        // CATEGORIAS COM UPLOAD DE IMAGEM
         // =========================================
         function updateCategoriesList() {
             const container = document.getElementById('categories-list');
@@ -2299,14 +2548,18 @@
                 `;
                 
                 incomeCategories.forEach(category => {
+                    const iconStyle = category.image 
+                        ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                        : `background: ${category.color};`;
+                    
                     html += `
                         <div class="category-item" style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; border-radius: 8px; background: ${category.color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                                <i class="${category.icon}"></i>
+                            <div style="width: 40px; height: 40px; border-radius: 8px; ${iconStyle}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                                ${!category.image ? `<i class="${category.icon}"></i>` : ''}
                             </div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 600; margin-bottom: 5px;">${category.name}</div>
-                                <div style="font-size: 0.85rem; color: var(--text-light);">${category.type === 'income' ? 'Ganho' : 'Gasto'}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">Ganho</div>
                             </div>
                             <button onclick="editCategory(${category.id})" style="background: none; border: none; color: var(--accent); cursor: pointer;">
                                 <i class="fas fa-edit"></i>
@@ -2335,14 +2588,18 @@
                 `;
                 
                 expenseCategories.forEach(category => {
+                    const iconStyle = category.image 
+                        ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                        : `background: ${category.color};`;
+                    
                     html += `
                         <div class="category-item" style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;">
-                            <div style="width: 40px; height: 40px; border-radius: 8px; background: ${category.color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                                <i class="${category.icon}"></i>
+                            <div style="width: 40px; height: 40px; border-radius: 8px; ${iconStyle}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                                ${!category.image ? `<i class="${category.icon}"></i>` : ''}
                             </div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 600; margin-bottom: 5px;">${category.name}</div>
-                                <div style="font-size: 0.85rem; color: var(--text-light);">${category.type === 'income' ? 'Ganho' : 'Gasto'}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">Gasto</div>
                             </div>
                             <button onclick="editCategory(${category.id})" style="background: none; border: none; color: var(--accent); cursor: pointer;">
                                 <i class="fas fa-edit"></i>
@@ -2367,11 +2624,52 @@
             document.getElementById('category-form-container').style.display = 'block';
             document.getElementById('category-form').reset();
             document.getElementById('category-color').value = '#3b82f6';
-            document.getElementById('save-category-btn').textContent = 'Salvar Categoria';
+            document.getElementById('category-form-title').textContent = 'Adicionar Nova Categoria';
+            document.getElementById('save-category-btn').innerHTML = '<i class="fas fa-save"></i> Salvar Categoria';
+            document.getElementById('category-image-preview').style.display = 'none';
+            document.getElementById('category-image-base64').value = '';
+            editingCategoryId = null;
         }
 
         function hideCategoryForm() {
             document.getElementById('category-form-container').style.display = 'none';
+            editingCategoryId = null;
+        }
+
+        function handleCategoryImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Verificar tamanho do arquivo (máximo 1MB)
+            if (file.size > 1024 * 1024) {
+                showNotification('A imagem deve ter no máximo 1MB', 'error');
+                return;
+            }
+            
+            // Verificar tipo do arquivo
+            if (!file.type.match('image.*')) {
+                showNotification('Por favor, selecione uma imagem válida', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById('category-image-preview');
+                const previewImg = document.getElementById('category-image-preview-img');
+                const base64Input = document.getElementById('category-image-base64');
+                
+                previewImg.src = e.target.result;
+                base64Input.value = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function removeCategoryImage() {
+            document.getElementById('category-image-preview').style.display = 'none';
+            document.getElementById('category-image-base64').value = '';
+            document.getElementById('category-image-upload').value = '';
         }
 
         function saveCategory(e) {
@@ -2381,27 +2679,49 @@
             const type = document.getElementById('category-type').value;
             const color = document.getElementById('category-color').value;
             const icon = document.getElementById('category-icon').value;
+            const imageBase64 = document.getElementById('category-image-base64').value;
             
             if (!name) {
                 showNotification('Por favor, digite um nome para a categoria!', 'error');
                 return;
             }
             
-            const newCategory = {
-                id: Date.now(),
+            let categoryData = {
                 name: name,
                 type: type,
                 color: color,
                 icon: icon
             };
             
-            categories.push(newCategory);
+            // Adicionar imagem se existir
+            if (imageBase64) {
+                categoryData.image = imageBase64;
+            }
+            
+            if (editingCategoryId) {
+                // Atualizar categoria existente
+                const index = categories.findIndex(c => c.id === editingCategoryId);
+                if (index !== -1) {
+                    categories[index] = {
+                        ...categories[index],
+                        ...categoryData
+                    };
+                }
+                showNotification('Categoria atualizada com sucesso!');
+            } else {
+                // Adicionar nova categoria
+                const newCategory = {
+                    id: Date.now(),
+                    ...categoryData
+                };
+                categories.push(newCategory);
+                showNotification('Categoria salva com sucesso!');
+            }
+            
             saveCategories();
             updateCategoriesList();
             updateCategorySelects();
             hideCategoryForm();
-            
-            showNotification('Categoria salva com sucesso!');
         }
 
         function editCategory(id) {
@@ -2409,48 +2729,25 @@
             if (!category) return;
             
             showCategoryForm();
+            editingCategoryId = id;
             
+            document.getElementById('category-form-title').textContent = 'Editar Categoria';
+            document.getElementById('save-category-btn').innerHTML = '<i class="fas fa-save"></i> Atualizar Categoria';
             document.getElementById('category-name').value = category.name;
             document.getElementById('category-type').value = category.type;
             document.getElementById('category-color').value = category.color;
-            document.getElementById('category-icon').value = category.icon;
+            document.getElementById('category-icon').value = category.icon || 'fas fa-question';
             
-            // Alterar o botão para "Atualizar"
-            document.getElementById('save-category-btn').textContent = 'Atualizar Categoria';
-            
-            // Remover a categoria antiga ao salvar
-            const form = document.getElementById('category-form');
-            const originalSubmit = form.onsubmit;
-            
-            form.onsubmit = function(e) {
-                e.preventDefault();
+            // Configurar imagem se existir
+            if (category.image) {
+                const imagePreview = document.getElementById('category-image-preview');
+                const previewImg = document.getElementById('category-image-preview-img');
+                const base64Input = document.getElementById('category-image-base64');
                 
-                const name = document.getElementById('category-name').value.trim();
-                const type = document.getElementById('category-type').value;
-                const color = document.getElementById('category-color').value;
-                const icon = document.getElementById('category-icon').value;
-                
-                if (!name) {
-                    showNotification('Por favor, digite um nome para a categoria!', 'error');
-                    return;
-                }
-                
-                // Atualizar a categoria
-                category.name = name;
-                category.type = type;
-                category.color = color;
-                category.icon = icon;
-                
-                saveCategories();
-                updateCategoriesList();
-                updateCategorySelects();
-                hideCategoryForm();
-                
-                showNotification('Categoria atualizada com sucesso!');
-                
-                // Restaurar o evento original
-                form.onsubmit = originalSubmit;
-            };
+                previewImg.src = category.image;
+                base64Input.value = category.image;
+                imagePreview.style.display = 'block';
+            }
         }
 
         function deleteCategory(id) {
@@ -2488,119 +2785,10 @@
         }
 
         // =========================================
-        // CONTAS ADICIONAIS
+        // HISTÓRICO DO ANO COM CALENDÁRIO INFINITO
         // =========================================
-        function addAccount() {
-            const accountName = prompt('Digite o nome da conta:');
-            if (!accountName || accountName.trim() === '') return;
-            
-            const initialValue = prompt('Digite o saldo inicial:');
-            const parsedValue = parseCurrencyToNumber(initialValue);
-            
-            showNotification('Conta adicionada com sucesso! Em uma versão futura, você poderá gerenciar múltiplas contas.');
-        }
-
-        // =========================================
-        // EXPORTAR/IMPORTAR DADOS
-        // =========================================
-        function exportData() {
-            const data = {
-                transactions: transactions,
-                categories: categories,
-                initialBalance: initialBalance,
-                exportDate: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `minhas-financas-backup-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('Dados exportados com sucesso!');
-        }
-
-        function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        
-                        if (confirm('Isso substituirá todos os seus dados atuais. Tem certeza?')) {
-                            if (data.transactions) transactions = data.transactions;
-                            if (data.categories) categories = data.categories;
-                            if (data.initialBalance) initialBalance = data.initialBalance;
-                            
-                            saveData();
-                            updateUI();
-                            showNotification('Dados importados com sucesso!');
-                        }
-                    } catch (error) {
-                        showNotification('Erro ao importar dados. O arquivo pode estar corrompido.', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            
-            input.click();
-        }
-
-        function resetData() {
-            if (confirm('Tem certeza que deseja resetar todos os dados? Isso apagará todas as transações, categorias e configurações.')) {
-                localStorage.clear();
-                transactions = [];
-                categories = defaultCategories;
-                initialBalance = 0;
-                saveData();
-                updateUI();
-                showNotification('Todos os dados foram resetados!');
-            }
-        }
-
-        // =========================================
-        // HISTÓRICO DO ANO
-        // =========================================
-        function updateYearSelector() {
-            const select = document.getElementById('year-selector');
-            select.innerHTML = '';
-           
-            const yearSet = new Set();
-            transactions.forEach(t => {
-                const date = new Date(t.date);
-                yearSet.add(date.getFullYear());
-            });
-           
-            for (let year = 2020; year <= 2030; year++) {
-                yearSet.add(year);
-            }
-           
-            const years = Array.from(yearSet).sort((a, b) => b - a);
-           
-            years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                if (year === currentYear) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            });
-        }
-
-        function updateYearHistory() {
-            const selectedYear = parseInt(document.getElementById('year-selector').value) || currentYear;
+        function updateYearHistory(year = null) {
+            const selectedYear = year || parseInt(document.getElementById('year-selector-input').value) || currentYear;
             const container = document.getElementById('year-history');
            
             document.getElementById('selected-year').textContent = selectedYear;
@@ -2699,10 +2887,15 @@
                     const date = new Date(transaction.date);
                     const isToday = date.toDateString() === new Date().toDateString();
                    
+                    // Verificar se a categoria tem imagem
+                    const iconStyle = category?.image 
+                        ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                        : `background: ${category?.color || '#3b82f6'};`;
+                   
                     return `
                         <div class="transaction-item ${transaction.type}">
-                            <div class="transaction-icon" style="background: ${category?.color || '#3b82f6'}">
-                                <i class="${category?.icon || 'fas fa-question'}"></i>
+                            <div class="transaction-icon" style="${iconStyle}">
+                                ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
                             </div>
                             <div class="transaction-info">
                                 <div class="transaction-name">${transaction.description}</div>
@@ -2784,35 +2977,14 @@
             updateCategorySelect('income');
         }
 
-        function updateYearFilter() {
-            // Atualizar filtro de ano para todas as transações
-            const yearSelect = document.getElementById('all-filter-year');
-            yearSelect.innerHTML = '<option value="">Todos os anos</option>';
-           
-            const yearSet = new Set();
-            transactions.forEach(t => {
-                const date = new Date(t.date);
-                yearSet.add(date.getFullYear());
-            });
-           
-            const years = Array.from(yearSet).sort((a, b) => b - a);
-           
-            years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearSelect.appendChild(option);
-            });
-        }
-
         // =========================================
-        // CONTROLES DE DATA
+        // CONTROLES DE DATA COM CALENDÁRIO INFINITO
         // =========================================
         function changeYear(delta) {
             currentYear += delta;
             updateDateDisplay();
             updateDashboard();
-            updateYearHistory();
+            updateYearHistory(currentYear);
         }
 
         function changeMonth(delta) {
@@ -2836,7 +3008,7 @@
             currentMonth = now.getMonth();
             updateDateDisplay();
             updateDashboard();
-            updateYearHistory();
+            updateYearHistory(currentYear);
             showNotification('Voltou para o mês atual');
         }
 
@@ -2851,8 +3023,6 @@
            
             document.getElementById('current-year').textContent = currentYear;
             document.getElementById('current-month').textContent = monthNames[currentMonth];
-           
-            document.getElementById('year-selector').value = currentYear;
         }
 
         // =========================================
@@ -2911,4 +3081,4 @@
         }
     </script>
 </body>
-                    </html>
+    </html>
