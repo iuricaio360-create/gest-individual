@@ -55,496 +55,6 @@
             margin: 0 auto;
         }
 
-        /* Modal de Autorização de Gastos */
-        .auth-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .auth-modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .auth-content {
-            background: white;
-            border-radius: var(--radius);
-            width: 100%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .auth-header {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 25px 30px;
-            border-radius: var(--radius) var(--radius) 0 0;
-            position: relative;
-        }
-
-        .auth-header h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .auth-header p {
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-
-        .auth-close {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .auth-close:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .auth-body {
-            padding: 30px;
-        }
-
-        .question-progress {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding: 15px 20px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .progress-info {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .progress-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .progress-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 10px;
-            background: #e5e7eb;
-            border-radius: 5px;
-            margin: 0 20px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--light));
-            border-radius: 5px;
-            transition: width 0.3s ease;
-            width: 0%;
-        }
-
-        .score-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .score-badge.approved {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .score-badge.review {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .score-badge.blocked {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .question-container {
-            margin-bottom: 30px;
-        }
-
-        .question-item {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 2px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .question-item:hover {
-            border-color: var(--accent);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.1);
-        }
-
-        .question-item.critical {
-            border-left: 4px solid var(--danger);
-            background: linear-gradient(to right, rgba(239, 68, 68, 0.05), white);
-        }
-
-        .question-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .question-number {
-            width: 36px;
-            height: 36px;
-            background: var(--accent);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .question-item.critical .question-number {
-            background: var(--danger);
-        }
-
-        .question-text {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text);
-            flex: 1;
-        }
-
-        .critical-badge {
-            background: var(--danger);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .options-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .option-btn {
-            padding: 20px 15px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            background: white;
-            color: var(--text);
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .option-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .option-btn.selected {
-            border-width: 3px;
-            transform: translateY(-2px);
-        }
-
-        .option-btn.positive {
-            border-color: var(--success);
-            background: rgba(16, 185, 129, 0.05);
-        }
-
-        .option-btn.positive.selected {
-            background: rgba(16, 185, 129, 0.15);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
-        }
-
-        .option-btn.neutral {
-            border-color: var(--warning);
-            background: rgba(245, 158, 11, 0.05);
-        }
-
-        .option-btn.neutral.selected {
-            background: rgba(245, 158, 11, 0.15);
-            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2);
-        }
-
-        .option-btn.negative {
-            border-color: var(--danger);
-            background: rgba(239, 68, 68, 0.05);
-        }
-
-        .option-btn.negative.selected {
-            background: rgba(239, 68, 68, 0.15);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
-        }
-
-        .option-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .option-btn.positive .option-label {
-            color: var(--success);
-        }
-
-        .option-btn.neutral .option-label {
-            color: var(--warning);
-        }
-
-        .option-btn.negative .option-label {
-            color: var(--danger);
-        }
-
-        .option-text {
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        .auth-footer {
-            padding: 25px 30px;
-            background: #f8fafc;
-            border-radius: 0 0 var(--radius) var(--radius);
-            border-top: 1px solid var(--border);
-        }
-
-        .result-panel {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 2px solid var(--border);
-            text-align: center;
-        }
-
-        .result-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .result-icon.approved {
-            color: var(--success);
-        }
-
-        .result-icon.review {
-            color: var(--warning);
-        }
-
-        .result-icon.blocked {
-            color: var(--danger);
-        }
-
-        .result-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .result-description {
-            color: var(--text-light);
-            margin-bottom: 20px;
-        }
-
-        .result-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .result-stat {
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .result-stat.positive {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .result-stat.neutral {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .result-stat.negative {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .result-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .result-stat-label {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .action-buttons {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .btn-approve {
-            background: linear-gradient(135deg, var(--success), var(--success-light));
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-approve:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-delay {
-            background: linear-gradient(135deg, var(--warning), var(--warning-light));
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-delay:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
-        }
-
-        .btn-cancel {
-            background: linear-gradient(135deg, var(--danger), var(--danger-light));
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-cancel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-skip {
-            background: linear-gradient(135deg, #6b7280, #9ca3af);
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-skip:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
-        }
-
         /* Capa/Header com imagem de fundo */
         .cover {
             background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -1111,8 +621,8 @@
             border: 1px solid #fbbf24;
         }
 
-        /* Histórico de Decisões */
-        .decisions-history-panel {
+        /* Histórico por Ano */
+        .year-history-panel {
             background: var(--card);
             border-radius: var(--radius);
             padding: 25px;
@@ -1120,85 +630,167 @@
             margin-bottom: 30px;
         }
 
-        .decision-item {
+        .year-summary {
             background: white;
+            border: 2px solid var(--border);
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 15px;
-            border: 2px solid var(--border);
-            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
-        .decision-item:hover {
-            border-color: var(--accent);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.1);
-        }
-
-        .decision-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .decision-title {
+        .year-summary-title {
+            color: var(--primary);
+            font-size: 1.3rem;
             font-weight: 600;
-            color: var(--text);
-            font-size: 1.1rem;
+            margin-bottom: 20px;
         }
 
-        .decision-date {
+        .year-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .year-summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .year-stat-card {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .year-stat-card.income { background: rgba(16, 185, 129, 0.1); }
+        .year-stat-card.expense { background: rgba(239, 68, 68, 0.1); }
+        .year-stat-card.balance { background: rgba(59, 130, 246, 0.1); }
+
+        .year-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .year-stat-card.income .year-stat-value { color: var(--success); }
+        .year-stat-card.expense .year-stat-value { color: var(--danger); }
+        .year-stat-card.balance .year-stat-value { color: var(--accent); }
+
+        .year-stat-label {
             color: var(--text-light);
             font-size: 0.9rem;
         }
 
-        .decision-stats {
-            display: flex;
+        .year-history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-top: 20px;
         }
 
-        .decision-stat {
+        .year-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .year-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .year-card.current {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .year-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .year-stats {
             display: flex;
             flex-direction: column;
+            gap: 10px;
         }
 
-        .decision-stat-label {
-            font-size: 0.8rem;
+        .year-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .year-label {
             color: var(--text-light);
-            margin-bottom: 3px;
+            font-size: 0.9rem;
         }
 
-        .decision-stat-value {
+        .year-value {
             font-weight: 600;
-            font-size: 1.1rem;
         }
 
-        .decision-status {
+        /* Detalhes do Mês */
+        .month-details {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+            display: none;
+        }
+
+        .month-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .month-details-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        /* Estado Vazio */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--border);
+        }
+
+        /* Utilitários */
+        .badge {
             display: inline-block;
-            padding: 5px 12px;
+            padding: 5px 10px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
+            margin-left: 10px;
         }
 
-        .decision-status.approved {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        .decision-status.review {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .decision-status.blocked {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
 
         /* Responsividade */
         @media (max-width: 768px) {
@@ -1251,15 +843,6 @@
             .header-balance-value {
                 font-size: 1.8rem;
             }
-
-            .auth-content {
-                max-height: 95vh;
-                margin: 10px;
-            }
-
-            .result-stats {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* Animações */
@@ -1273,65 +856,27 @@
         }
 
         /* Scrollbar Personalizada */
-        .transaction-list::-webkit-scrollbar,
-        .auth-content::-webkit-scrollbar {
+        .transaction-list::-webkit-scrollbar {
             width: 6px;
         }
 
-        .transaction-list::-webkit-scrollbar-track,
-        .auth-content::-webkit-scrollbar-track {
+        .transaction-list::-webkit-scrollbar-track {
             background: var(--bg);
             border-radius: 3px;
         }
 
-        .transaction-list::-webkit-scrollbar-thumb,
-        .auth-content::-webkit-scrollbar-thumb {
+        .transaction-list::-webkit-scrollbar-thumb {
             background: var(--border);
             border-radius: 3px;
         }
 
-        .transaction-list::-webkit-scrollbar-thumb:hover,
-        .auth-content::-webkit-scrollbar-thumb:hover {
+        .transaction-list::-webkit-scrollbar-thumb:hover {
             background: var(--text-light);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Modal de Autorização de Gastos -->
-        <div class="auth-modal" id="auth-modal">
-            <div class="auth-content">
-                <div class="auth-header">
-                    <h3><i class="fas fa-shield-alt"></i> Autorização de Gastos</h3>
-                    <p>Responda as perguntas para tomar uma decisão consciente</p>
-                    <button class="auth-close" id="auth-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="auth-body">
-                    <div class="question-progress">
-                        <div class="progress-info">
-                            <div class="progress-label">Pontuação Atual</div>
-                            <div class="progress-value" id="current-score">0%</div>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
-                        <div class="score-badge" id="score-badge">Aguardando</div>
-                    </div>
-                    
-                    <div class="question-container" id="question-container">
-                        <!-- Perguntas serão inseridas aqui -->
-                    </div>
-                </div>
-                
-                <div class="auth-footer" id="auth-footer">
-                    <!-- Resultado e botões serão inseridos aqui -->
-                </div>
-            </div>
-        </div>
-
         <!-- Capa/Header -->
         <div class="cover">
             <div class="cover-content">
@@ -1535,14 +1080,16 @@
             </div>
            
             <div class="panel-header">
-                <h3 class="panel-title">Histórico de Decisões Financeiras</h3>
-                <button class="btn btn-secondary" onclick="clearDecisionsHistory()" style="width: auto; padding: 10px 20px;">
-                    <i class="fas fa-trash"></i> Limpar Histórico
-                </button>
+                <h3 class="panel-title">Histórico Mensal</h3>
+                <div class="filters">
+                    <select class="filter-select" id="year-selector">
+                        <!-- Anos serão carregados aqui -->
+                    </select>
+                </div>
             </div>
            
-            <div class="transaction-list" id="decisions-history">
-                <!-- Histórico de decisões será carregado aqui -->
+            <div class="year-history-grid" id="year-history">
+                <!-- Histórico por ano será carregado aqui -->
             </div>
         </div>
 
@@ -1571,9 +1118,6 @@
         let currentMonth = currentDate.getMonth();
         let currency = 'BRL';
         let initialBalance = 0;
-        let pendingTransaction = null;
-        let spendingDecisions = [];
-        let currentAnswers = {};
 
         // Categorias padrão
         const defaultCategories = [
@@ -1595,94 +1139,11 @@
             { id: 13, name: 'Outros Gastos', type: 'expense', color: '#64748b', icon: 'fas fa-question-circle' }
         ];
 
-        // Perguntas do sistema de autorização
-        const spendingQuestions = [
-            {
-                id: 1,
-                question: "Este gasto está alinhado com meus objetivos financeiros de longo prazo?",
-                type: "normal",
-                options: [
-                    { type: "positive", text: "Sim, está totalmente alinhado", value: 1 },
-                    { type: "neutral", text: "Não sei dizer ao certo", value: 0 },
-                    { type: "negative", text: "Não, está fora do planejamento", value: -1 }
-                ]
-            },
-            {
-                id: 2,
-                question: "Este gasto compromete minha reserva financeira?",
-                type: "critical",
-                options: [
-                    { type: "positive", text: "Não, minhas reservas estão seguras", value: 1 },
-                    { type: "neutral", text: "Compromete parcialmente", value: 0 },
-                    { type: "negative", text: "Sim, compromete minhas reservas", value: -1 }
-                ]
-            },
-            {
-                id: 3,
-                question: "Este gasto diminui minha geração de valor pessoal?",
-                type: "critical",
-                options: [
-                    { type: "positive", text: "Não, aumenta meu valor pessoal", value: 1 },
-                    { type: "neutral", text: "Não afeta meu valor pessoal", value: 0 },
-                    { type: "negative", text: "Sim, diminui meu valor pessoal", value: -1 }
-                ]
-            },
-            {
-                id: 4,
-                question: "Estou tomando essa decisão em estado emocional negativo (ansioso, irritado, cansado)?",
-                type: "critical",
-                options: [
-                    { type: "positive", text: "Não, estou calmo e centrado", value: 1 },
-                    { type: "neutral", text: "Estou um pouco cansado", value: 0 },
-                    { type: "negative", text: "Sim, estou ansioso/irritado", value: -1 }
-                ]
-            },
-            {
-                id: 5,
-                question: "Existe uma alternativa mais barata ou gratuita para atender essa necessidade?",
-                type: "normal",
-                options: [
-                    { type: "positive", text: "Já considere e esta é a melhor opção", value: 1 },
-                    { type: "neutral", text: "Possivelmente, mas não pesquisei", value: 0 },
-                    { type: "negative", text: "Sim, mas prefiro esta opção", value: -1 }
-                ]
-            },
-            {
-                id: 6,
-                question: "Posso adiar este gasto sem prejudicar minha qualidade de vida?",
-                type: "normal",
-                options: [
-                    { type: "positive", text: "Não, é necessário agora", value: 1 },
-                    { type: "neutral", text: "Talvez por algumas semanas", value: 0 },
-                    { type: "negative", text: "Sim, poderia adiar por meses", value: -1 }
-                ]
-            },
-            {
-                id: 7,
-                question: "Este gasto me traz satisfação duradoura ou é apenas momentânea?",
-                type: "normal",
-                options: [
-                    { type: "positive", text: "Satisfação duradoura", value: 1 },
-                    { type: "neutral", text: "Uma mistura dos dois", value: 0 },
-                    { type: "negative", text: "Satisfação momentânea apenas", value: -1 }
-                ]
-            },
-            {
-                id: 8,
-                question: "Já tenho algo similar que pode servir ao mesmo propósito?",
-                type: "normal",
-                options: [
-                    { type: "positive", text: "Não, preciso disso especificamente", value: 1 },
-                    { type: "neutral", text: "Tenho algo parecido", value: 0 },
-                    { type: "negative", text: "Sim, tenho algo que pode servir", value: -1 }
-                ]
-            }
-        ];
-
         // =========================================
         // FUNÇÕES DE FORMATAÇÃO DE VALOR
         // =========================================
         
+        // Formata valor para o formato brasileiro
         function formatCurrency(value) {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -1690,6 +1151,7 @@
             }).format(value);
         }
 
+        // Formata número para string formatada (1.234,56)
         function formatNumberToCurrency(value) {
             if (value === null || value === undefined || value === '') return '0,00';
             
@@ -1701,6 +1163,7 @@
                 .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
 
+        // Converte string formatada para número
         function parseCurrencyToNumber(currencyString) {
             if (!currencyString) return 0;
             
@@ -1714,6 +1177,7 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
+        // Formata input enquanto digita
         function formatCurrencyInput(event) {
             let input = event.target;
             let value = input.value.replace(/\D/g, '');
@@ -1727,6 +1191,7 @@
             input.value = formatNumberToCurrency(numberValue);
         }
 
+        // Formata valor ao sair do campo
         function formatCurrencyOnBlur(event) {
             let input = event.target;
             let value = input.value;
@@ -1788,26 +1253,12 @@
                     initialBalance = 0;
                 }
             }
-
-            // Carregar histórico de decisões
-            const savedDecisions = localStorage.getItem('minhas-financas-decisions');
-            if (savedDecisions) {
-                try {
-                    spendingDecisions = JSON.parse(savedDecisions);
-                } catch (e) {
-                    console.error('Erro ao carregar decisões:', e);
-                    spendingDecisions = [];
-                }
-            }
-
-            updateDecisionsHistory();
         }
 
         function saveData() {
             localStorage.setItem('minhas-financas-transactions', JSON.stringify(transactions));
             localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
             localStorage.setItem('minhas-financas-initial-balance', initialBalance.toString());
-            localStorage.setItem('minhas-financas-decisions', JSON.stringify(spendingDecisions));
         }
 
         function saveCategories() {
@@ -1815,31 +1266,43 @@
         }
 
         function initializeApp() {
+            // Configurar data atual no formulário
             document.getElementById('transaction-form').reset();
             document.getElementById('transaction-date').valueAsDate = new Date();
            
+            // Preencher campo de saldo inicial
             document.getElementById('initial-balance-input').value = formatNumberToCurrency(initialBalance);
             document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
            
+            // Inicializar selects de categoria
             updateCategorySelects();
+           
+            // Inicializar filtros
             updateYearFilter();
             updateYearSelector();
+           
+            // Configurar controles de data
             updateDateDisplay();
         }
 
         function setupEventListeners() {
+            // Formulário de transação
             document.getElementById('transaction-form').addEventListener('submit', addTransaction);
            
+            // Formatação automática do campo de valor
             const amountInput = document.getElementById('amount');
             amountInput.addEventListener('input', formatCurrencyInput);
             amountInput.addEventListener('blur', formatCurrencyOnBlur);
             
+            // Formatação do campo de saldo inicial
             const initialBalanceInput = document.getElementById('initial-balance-input');
             initialBalanceInput.addEventListener('input', formatCurrencyInput);
             initialBalanceInput.addEventListener('blur', formatCurrencyOnBlur);
             
+            // Atualizar saldo inicial
             document.getElementById('update-initial-balance-btn').addEventListener('click', updateInitialBalance);
             
+            // Seletor de tipo
             document.querySelectorAll('.type-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
@@ -1848,453 +1311,23 @@
                 });
             });
 
+            // Controles de data
             document.getElementById('prev-year').addEventListener('click', () => changeYear(-1));
             document.getElementById('next-year').addEventListener('click', () => changeYear(1));
             document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
             document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
             document.getElementById('today-btn').addEventListener('click', goToToday);
 
+            // Filtros de transações recentes
             document.getElementById('recent-filter-type').addEventListener('change', updateRecentTransactions);
             document.getElementById('recent-filter-category').addEventListener('change', updateRecentTransactions);
             document.getElementById('recent-filter-period').addEventListener('change', updateRecentTransactions);
             document.getElementById('year-selector').addEventListener('change', updateYearHistory);
-
-            document.getElementById('auth-close').addEventListener('click', closeAuthModal);
         }
 
         // =========================================
-        // MÓDULO DE AUTORIZAÇÃO DE GASTOS
+        // DATA E HORA ATUAL
         // =========================================
-        
-        function showSpendingAuthorization(transaction) {
-            pendingTransaction = transaction;
-            currentAnswers = {};
-            
-            const modal = document.getElementById('auth-modal');
-            modal.classList.add('active');
-            
-            renderQuestions();
-            updateScore();
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeAuthModal() {
-            const modal = document.getElementById('auth-modal');
-            modal.classList.remove('active');
-            pendingTransaction = null;
-            currentAnswers = {};
-            document.body.style.overflow = 'auto';
-        }
-
-        function renderQuestions() {
-            const container = document.getElementById('question-container');
-            container.innerHTML = '';
-            
-            spendingQuestions.forEach(question => {
-                const questionElement = document.createElement('div');
-                questionElement.className = `question-item ${question.type === 'critical' ? 'critical' : ''}`;
-                
-                const optionsHtml = question.options.map(option => `
-                    <button class="option-btn ${option.type} ${currentAnswers[question.id] === option.value ? 'selected' : ''}" 
-                            onclick="selectOption(${question.id}, ${option.value}, '${option.type}')">
-                        <div class="option-label">${option.type === 'positive' ? 'OK' : option.type === 'neutral' ? 'NEUTRO' : 'NÃO'}</div>
-                        <div class="option-text">${option.text}</div>
-                    </button>
-                `).join('');
-                
-                questionElement.innerHTML = `
-                    <div class="question-header">
-                        <div class="question-number">${question.id}</div>
-                        <div class="question-text">${question.question}</div>
-                        ${question.type === 'critical' ? '<span class="critical-badge">VETO</span>' : ''}
-                    </div>
-                    <div class="options-grid">
-                        ${optionsHtml}
-                    </div>
-                `;
-                
-                container.appendChild(questionElement);
-            });
-        }
-
-        function selectOption(questionId, value, type) {
-            currentAnswers[questionId] = value;
-            
-            spendingQuestions.forEach(question => {
-                if (question.id === questionId) {
-                    question.options.forEach(option => {
-                        if (option.value === value) {
-                            currentAnswers[questionId] = {
-                                value: value,
-                                type: type,
-                                text: option.text
-                            };
-                        }
-                    });
-                }
-            });
-            
-            renderQuestions();
-            updateScore();
-        }
-
-        function calculateScore() {
-            let totalPoints = 0;
-            let maxPoints = 0;
-            let answeredCount = 0;
-            let vetoTriggered = false;
-            let vetoQuestions = [];
-            
-            spendingQuestions.forEach(question => {
-                if (currentAnswers[question.id]) {
-                    answeredCount++;
-                    const answer = currentAnswers[question.id];
-                    
-                    if (typeof answer === 'object') {
-                        totalPoints += answer.value;
-                    } else {
-                        totalPoints += answer;
-                    }
-                    
-                    // Verificar veto automático
-                    if (question.type === 'critical' && answer.value === -1) {
-                        vetoTriggered = true;
-                        vetoQuestions.push(question.question);
-                    }
-                }
-                maxPoints++;
-            });
-            
-            if (answeredCount === 0) return { percentage: 0, vetoTriggered: false, vetoQuestions: [] };
-            
-            // Converter pontos negativos para 0 para cálculo de porcentagem
-            const normalizedPoints = Math.max(0, totalPoints);
-            const percentage = Math.round((normalizedPoints / answeredCount) * 100);
-            
-            return {
-                percentage: percentage,
-                vetoTriggered: vetoTriggered,
-                vetoQuestions: vetoQuestions,
-                answeredCount: answeredCount,
-                totalPoints: totalPoints
-            };
-        }
-
-        function updateScore() {
-            const score = calculateScore();
-            const progressFill = document.getElementById('progress-fill');
-            const currentScore = document.getElementById('current-score');
-            const scoreBadge = document.getElementById('score-badge');
-            const authFooter = document.getElementById('auth-footer');
-            
-            progressFill.style.width = `${score.percentage}%`;
-            currentScore.textContent = `${score.percentage}%`;
-            
-            let badgeText = 'Aguardando';
-            let badgeClass = '';
-            
-            if (score.answeredCount > 0) {
-                if (score.vetoTriggered) {
-                    badgeText = 'VETADO';
-                    badgeClass = 'blocked';
-                } else if (score.percentage >= 70) {
-                    badgeText = 'APROVADO';
-                    badgeClass = 'approved';
-                } else if (score.percentage >= 50) {
-                    badgeText = 'REVISAR';
-                    badgeClass = 'review';
-                } else {
-                    badgeText = 'BLOQUEADO';
-                    badgeClass = 'blocked';
-                }
-            }
-            
-            scoreBadge.textContent = badgeText;
-            scoreBadge.className = `score-badge ${badgeClass}`;
-            
-            renderResult(score);
-        }
-
-        function renderResult(score) {
-            const authFooter = document.getElementById('auth-footer');
-            
-            if (Object.keys(currentAnswers).length < spendingQuestions.length) {
-                authFooter.innerHTML = `
-                    <div style="text-align: center; padding: 30px;">
-                        <i class="fas fa-clipboard-list" style="font-size: 3rem; color: var(--text-light); margin-bottom: 15px;"></i>
-                        <h3 style="margin-bottom: 10px; color: var(--text);">Responda todas as perguntas</h3>
-                        <p style="color: var(--text-light); margin-bottom: 20px;">
-                            Responda ${spendingQuestions.length - Object.keys(currentAnswers).length} pergunta(s) restante(s) para obter a análise completa.
-                        </p>
-                        <button class="btn-skip" onclick="skipAuthorization()">
-                            <i class="fas fa-forward"></i> Pular Autorização
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-            
-            let resultIcon = '';
-            let resultTitle = '';
-            let resultDescription = '';
-            let resultClass = '';
-            let showDelayOption = false;
-            
-            if (score.vetoTriggered) {
-                resultIcon = 'fas fa-ban';
-                resultTitle = 'GASTO VETADO';
-                resultDescription = `Uma ou mais perguntas críticas foram respondidas negativamente:<br><br>
-                    <strong>${score.vetoQuestions.join('<br>')}</strong><br><br>
-                    Recomendamos adiar esta decisão por 24 horas para reflexão.`;
-                resultClass = 'blocked';
-                showDelayOption = true;
-            } else if (score.percentage >= 70) {
-                resultIcon = 'fas fa-check-circle';
-                resultTitle = 'GASTO APROVADO';
-                resultDescription = `Excelente! Este gasto está alinhado com seus objetivos financeiros.<br>
-                    Pontuação: <strong>${score.percentage}%</strong> de aprovação.`;
-                resultClass = 'approved';
-            } else if (score.percentage >= 50) {
-                resultIcon = 'fas fa-exclamation-triangle';
-                resultTitle = 'REVISAR DECISÃO';
-                resultDescription = `Este gasto requer atenção especial.<br>
-                    Pontuação: <strong>${score.percentage}%</strong> de aprovação.<br>
-                    Recomendamos reconsiderar ou buscar alternativas.`;
-                resultClass = 'review';
-            } else {
-                resultIcon = 'fas fa-times-circle';
-                resultTitle = 'GASTO BLOQUEADO';
-                resultDescription = `Este gasto não está alinhado com seus objetivos financeiros.<br>
-                    Pontuação: <strong>${score.percentage}%</strong> de aprovação.<br>
-                    Considere adiar ou cancelar esta compra.`;
-                resultClass = 'blocked';
-                showDelayOption = true;
-            }
-            
-            // Contar tipos de respostas
-            let positiveCount = 0;
-            let neutralCount = 0;
-            let negativeCount = 0;
-            
-            Object.values(currentAnswers).forEach(answer => {
-                if (typeof answer === 'object') {
-                    if (answer.type === 'positive') positiveCount++;
-                    else if (answer.type === 'neutral') neutralCount++;
-                    else if (answer.type === 'negative') negativeCount++;
-                }
-            });
-            
-            authFooter.innerHTML = `
-                <div class="result-panel">
-                    <div class="result-icon ${resultClass}">
-                        <i class="${resultIcon}"></i>
-                    </div>
-                    <h3 class="result-title">${resultTitle}</h3>
-                    <p class="result-description">${resultDescription}</p>
-                    
-                    <div class="result-stats">
-                        <div class="result-stat positive">
-                            <div class="result-stat-value">${positiveCount}</div>
-                            <div class="result-stat-label">Respostas OK</div>
-                        </div>
-                        <div class="result-stat neutral">
-                            <div class="result-stat-value">${neutralCount}</div>
-                            <div class="result-stat-label">Respostas Neutras</div>
-                        </div>
-                        <div class="result-stat negative">
-                            <div class="result-stat-value">${negativeCount}</div>
-                            <div class="result-stat-label">Respostas Não</div>
-                        </div>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        ${score.vetoTriggered || score.percentage < 70 ? `
-                            <button class="btn-delay" onclick="delayDecision()">
-                                <i class="fas fa-clock"></i> Adiar por 24h
-                            </button>
-                        ` : ''}
-                        
-                        ${score.percentage >= 70 ? `
-                            <button class="btn-approve" onclick="approveTransaction()">
-                                <i class="fas fa-check"></i> Confirmar Gasto
-                            </button>
-                        ` : score.percentage >= 50 ? `
-                            <button class="btn-approve" onclick="approveTransaction()" style="background: linear-gradient(135deg, var(--warning), var(--warning-light));">
-                                <i class="fas fa-exclamation"></i> Confirmar Mesmo Assim
-                            </button>
-                        ` : ''}
-                        
-                        <button class="btn-cancel" onclick="cancelTransaction()">
-                            <i class="fas fa-times"></i> Cancelar Gasto
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function skipAuthorization() {
-            if (confirm('Deseja pular a autorização e adicionar o gasto diretamente?\n\nEsta ação não será registrada no histórico de decisões.')) {
-                addTransactionDirectly(pendingTransaction);
-                closeAuthModal();
-            }
-        }
-
-        function delayDecision() {
-            const decision = {
-                id: Date.now(),
-                transaction: pendingTransaction,
-                answers: currentAnswers,
-                score: calculateScore(),
-                status: 'delayed',
-                timestamp: new Date().toISOString(),
-                delayedUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-            };
-            
-            spendingDecisions.push(decision);
-            saveData();
-            updateDecisionsHistory();
-            
-            showNotification('Decisão adiada por 24 horas para reflexão.', 'warning');
-            closeAuthModal();
-            
-            // Resetar formulário
-            document.getElementById('transaction-form').reset();
-            document.getElementById('transaction-date').valueAsDate = new Date();
-        }
-
-        function approveTransaction() {
-            const score = calculateScore();
-            const decision = {
-                id: Date.now(),
-                transaction: pendingTransaction,
-                answers: currentAnswers,
-                score: score,
-                status: score.percentage >= 70 ? 'approved' : 'reviewed',
-                timestamp: new Date().toISOString()
-            };
-            
-            spendingDecisions.push(decision);
-            
-            // Adicionar transação
-            addTransactionDirectly(pendingTransaction);
-            
-            // Mostrar resultado
-            const status = score.percentage >= 70 ? 'aprovado' : 'revisado';
-            showNotification(`Gasto ${status} com pontuação de ${score.percentage}%`, 'success');
-            
-            closeAuthModal();
-            updateDecisionsHistory();
-        }
-
-        function cancelTransaction() {
-            const score = calculateScore();
-            const decision = {
-                id: Date.now(),
-                transaction: pendingTransaction,
-                answers: currentAnswers,
-                score: score,
-                status: 'blocked',
-                timestamp: new Date().toISOString()
-            };
-            
-            spendingDecisions.push(decision);
-            saveData();
-            updateDecisionsHistory();
-            
-            showNotification('Gasto cancelado com base na análise financeira.', 'error');
-            closeAuthModal();
-        }
-
-        function addTransactionDirectly(transaction) {
-            transaction.id = Date.now() + Math.floor(Math.random() * 1000);
-            transaction.createdAt = new Date().toISOString();
-            transactions.push(transaction);
-            saveData();
-            updateUI();
-            document.getElementById('transaction-form').reset();
-            document.getElementById('transaction-date').valueAsDate = new Date();
-            document.getElementById('amount').value = '';
-        }
-
-        function updateDecisionsHistory() {
-            const container = document.getElementById('decisions-history');
-            
-            if (spendingDecisions.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        <p>Nenhuma decisão registrada</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px;">As decisões dos seus gastos aparecerão aqui</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Ordenar por data (mais recente primeiro)
-            const sortedDecisions = [...spendingDecisions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            container.innerHTML = sortedDecisions.slice(0, 10).map(decision => {
-                const date = new Date(decision.timestamp);
-                const formattedDate = date.toLocaleDateString('pt-BR');
-                const formattedTime = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                
-                let statusText = '';
-                let statusClass = '';
-                
-                if (decision.status === 'approved') {
-                    statusText = 'Aprovado';
-                    statusClass = 'approved';
-                } else if (decision.status === 'reviewed') {
-                    statusText = 'Revisado';
-                    statusClass = 'review';
-                } else if (decision.status === 'blocked') {
-                    statusText = 'Bloqueado';
-                    statusClass = 'blocked';
-                } else if (decision.status === 'delayed') {
-                    statusText = 'Adiado';
-                    statusClass = 'review';
-                }
-                
-                return `
-                    <div class="decision-item">
-                        <div class="decision-header">
-                            <div class="decision-title">${decision.transaction.description}</div>
-                            <div class="decision-date">${formattedDate} ${formattedTime}</div>
-                        </div>
-                        <div class="decision-stats">
-                            <div class="decision-stat">
-                                <div class="decision-stat-label">Valor</div>
-                                <div class="decision-stat-value">${formatCurrency(decision.transaction.amount)}</div>
-                            </div>
-                            <div class="decision-stat">
-                                <div class="decision-stat-label">Pontuação</div>
-                                <div class="decision-stat-value">${decision.score.percentage}%</div>
-                            </div>
-                            <div class="decision-stat">
-                                <div class="decision-stat-label">Status</div>
-                                <span class="decision-status ${statusClass}">${statusText}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function clearDecisionsHistory() {
-            if (confirm('Tem certeza que deseja limpar todo o histórico de decisões?')) {
-                spendingDecisions = [];
-                saveData();
-                updateDecisionsHistory();
-                showNotification('Histórico de decisões limpo com sucesso!');
-            }
-        }
-
-        // =========================================
-        // FUNÇÕES RESTANTES (MANTIDAS)
-        // =========================================
-        
         function updateCurrentTime() {
             const now = new Date();
            
@@ -2322,6 +1355,9 @@
             document.getElementById('current-time-display').textContent = timeString;
         }
 
+        // =========================================
+        // FUNÇÕES PRINCIPAIS
+        // =========================================
         function updateUI() {
             updateDashboard();
             updateRecentTransactions();
@@ -2329,6 +1365,9 @@
             updateTotalBalanceDisplay();
         }
 
+        // =========================================
+        // SALDO INICIAL
+        // =========================================
         function updateInitialBalance() {
             const input = document.getElementById('initial-balance-input');
             const value = parseCurrencyToNumber(input.value);
@@ -2362,11 +1401,13 @@
             const monthBalance = totalIncome - totalExpense;
             const totalBalance = initialBalance + monthBalance;
             
+            // Atualizar display no header
             const balanceElement = document.getElementById('total-balance-display');
             const headerBalance = document.getElementById('header-balance');
             
             balanceElement.textContent = formatCurrency(totalBalance);
             
+            // Atualizar cores do header baseado no saldo
             if (totalBalance > 0) {
                 headerBalance.className = 'header-balance positive';
             } else if (totalBalance < 0) {
@@ -2376,6 +1417,9 @@
             }
         }
 
+        // =========================================
+        // TRANSAÇÕES
+        // =========================================
         function addTransaction(e) {
             e.preventDefault();
            
@@ -2391,35 +1435,488 @@
             }
            
             const transaction = {
+                id: Date.now() + Math.floor(Math.random() * 1000),
                 type: type,
                 description: description,
                 amount: amount,
                 categoryId: categoryId,
-                date: dateInput || new Date().toISOString().split('T')[0]
+                date: dateInput || new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
             };
            
-            // Se for um gasto, mostrar autorização
-            if (type === 'expense') {
-                showSpendingAuthorization(transaction);
-            } else {
-                // Se for ganho, adicionar diretamente
-                transaction.id = Date.now() + Math.floor(Math.random() * 1000);
-                transaction.createdAt = new Date().toISOString();
-                transactions.push(transaction);
-                saveData();
-                updateUI();
-                document.getElementById('transaction-form').reset();
-                document.getElementById('transaction-date').valueAsDate = new Date();
-                document.getElementById('amount').value = '';
-                showNotification('Ganho adicionado com sucesso!');
+            transactions.push(transaction);
+            saveData();
+            updateUI();
+            document.getElementById('transaction-form').reset();
+            document.getElementById('transaction-date').valueAsDate = new Date();
+            document.getElementById('amount').value = '';
+           
+            showNotification('Transação adicionada com sucesso!');
+        }
+
+        function editTransaction(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) {
+                console.error('Transação não encontrada:', id);
+                return;
+            }
+            
+            const newDescription = prompt('Nova descrição:', transaction.description);
+            if (newDescription === null || newDescription.trim() === '') return;
+            
+            const currentValue = formatNumberToCurrency(transaction.amount);
+            const newAmount = prompt('Novo valor (R$):', currentValue);
+            if (newAmount === null) return;
+            
+            const parsedAmount = parseCurrencyToNumber(newAmount);
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                showNotification('Valor inválido!', 'error');
+                return;
+            }
+            
+            transaction.description = newDescription.trim();
+            transaction.amount = parsedAmount;
+            saveData();
+            updateUI();
+           
+            showNotification('Transação atualizada!');
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Tem certeza que deseja excluir esta transação?')) {
+                const initialLength = transactions.length;
+                transactions = transactions.filter(t => t.id !== id);
+                
+                if (transactions.length < initialLength) {
+                    saveData();
+                    updateUI();
+                    showNotification('Transação excluída!');
+                } else {
+                    showNotification('Transação não encontrada!', 'error');
+                }
             }
         }
 
-        // ... (manter as funções restantes como editTransaction, deleteTransaction, etc.)
+        // =========================================
+        // DASHBOARD
+        // =========================================
+        function updateDashboard() {
+            updateSummary();
+            updateTotalBalanceDisplay();
+        }
 
-        // IMPORTANTE: Manter todas as outras funções do sistema (dashboard, transações, histórico, etc.)
-        // que não foram mostradas aqui para manter o código conciso
+        function updateSummary() {
+            const monthTransactions = getMonthTransactions(currentYear, currentMonth);
+           
+            let totalIncome = 0;
+            let totalExpense = 0;
+           
+            monthTransactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncome += transaction.amount;
+                } else {
+                    totalExpense += transaction.amount;
+                }
+            });
+           
+            const balance = totalIncome - totalExpense;
+           
+            document.getElementById('total-income').textContent = formatCurrency(totalIncome);
+            document.getElementById('total-expense').textContent = formatCurrency(totalExpense);
+            document.getElementById('total-balance').textContent = formatCurrency(balance);
+        }
 
+        function updateRecentTransactions() {
+            const container = document.getElementById('recent-transactions');
+            const typeFilter = document.getElementById('recent-filter-type').value;
+            const categoryFilter = document.getElementById('recent-filter-category').value;
+            const periodFilter = document.getElementById('recent-filter-period').value;
+           
+            let filtered = [...transactions];
+           
+            const now = new Date();
+            if (periodFilter === 'current') {
+                filtered = getMonthTransactions(currentYear, currentMonth);
+            } else if (periodFilter === 'last30') {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                filtered = filtered.filter(t => new Date(t.date) >= thirtyDaysAgo);
+            } else if (periodFilter === 'last7') {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                filtered = filtered.filter(t => new Date(t.date) >= sevenDaysAgo);
+            }
+           
+            if (typeFilter) {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+           
+            if (categoryFilter) {
+                filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
+            }
+           
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            filtered = filtered.slice(0, 20);
+           
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <p>Nenhuma transação encontrada</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Adicione sua primeira transação usando o formulário</p>
+                    </div>
+                `;
+                return;
+            }
+           
+            container.innerHTML = filtered.map(transaction => {
+                const category = categories.find(c => c.id === transaction.categoryId);
+                const date = new Date(transaction.date);
+                const isToday = date.toDateString() === new Date().toDateString();
+               
+                return `
+                    <div class="transaction-item ${transaction.type}">
+                        <div class="transaction-icon" style="background: ${category?.color || '#3b82f6'}">
+                            <i class="${category?.icon || 'fas fa-question'}"></i>
+                        </div>
+                        <div class="transaction-info">
+                            <div class="transaction-name">${transaction.description}</div>
+                            <div class="transaction-meta">
+                                <span>${formatDate(transaction.date)} ${isToday ? '<span class="badge badge-success">Hoje</span>' : ''}</span>
+                                <span>${category?.name || 'Sem categoria'}</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                            ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-left: 10px;">
+                            <button onclick="editTransaction(${transaction.id})" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteTransaction(${transaction.id})" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================
+        // HISTÓRICO DO ANO
+        // =========================================
+        function updateYearSelector() {
+            const select = document.getElementById('year-selector');
+            select.innerHTML = '';
+           
+            const yearSet = new Set();
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                yearSet.add(date.getFullYear());
+            });
+           
+            for (let year = 2020; year <= 2030; year++) {
+                yearSet.add(year);
+            }
+           
+            const years = Array.from(yearSet).sort((a, b) => b - a);
+           
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+
+        function updateYearHistory() {
+            const selectedYear = parseInt(document.getElementById('year-selector').value) || currentYear;
+            const container = document.getElementById('year-history');
+           
+            document.getElementById('selected-year').textContent = selectedYear;
+           
+            let yearIncome = 0;
+            let yearExpense = 0;
+           
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                               'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+           
+            let html = '';
+           
+            for (let month = 0; month < 12; month++) {
+                const monthTransactions = getMonthTransactions(selectedYear, month);
+               
+                let income = 0;
+                let expense = 0;
+               
+                monthTransactions.forEach(transaction => {
+                    if (transaction.type === 'income') {
+                        income += transaction.amount;
+                        yearIncome += transaction.amount;
+                    } else {
+                        expense += transaction.amount;
+                        yearExpense += transaction.amount;
+                    }
+                });
+               
+                const balance = income - expense;
+                const isCurrent = selectedYear === currentYear && month === currentMonth;
+               
+                html += `
+                    <div class="year-card ${isCurrent ? 'current' : ''}" onclick="showMonthDetails(${selectedYear}, ${month})">
+                        <div class="year-title">${monthNames[month]} ${selectedYear}</div>
+                        <div class="year-stats">
+                            <div class="year-stat">
+                                <span class="year-label">Ganhos:</span>
+                                <span class="year-value text-success">${formatCurrency(income)}</span>
+                            </div>
+                            <div class="year-stat">
+                                <span class="year-label">Gastos:</span>
+                                <span class="year-value text-danger">${formatCurrency(expense)}</span>
+                            </div>
+                            <div class="year-stat">
+                                <span class="year-label">Saldo:</span>
+                                <span class="year-value ${balance >= 0 ? 'text-success' : 'text-danger'}">
+                                    ${formatCurrency(balance)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+           
+            const yearBalance = yearIncome - yearExpense;
+            document.getElementById('year-total-income').textContent = formatCurrency(yearIncome);
+            document.getElementById('year-total-expense').textContent = formatCurrency(yearExpense);
+            document.getElementById('year-total-balance').textContent = formatCurrency(yearBalance);
+           
+            container.innerHTML = html || `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <p>Nenhuma transação em ${selectedYear}</p>
+                </div>
+            `;
+        }
+
+        function showMonthDetails(year, month) {
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+           
+            document.getElementById('month-details-title').textContent =
+                `Detalhes de ${monthNames[month]} ${year}`;
+           
+            const monthTransactions = getMonthTransactions(year, month);
+            const container = document.getElementById('month-transactions');
+           
+            monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+           
+            if (monthTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <p>Nenhuma transação em ${monthNames[month]} ${year}</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = monthTransactions.map(transaction => {
+                    const category = categories.find(c => c.id === transaction.categoryId);
+                    const date = new Date(transaction.date);
+                    const isToday = date.toDateString() === new Date().toDateString();
+                   
+                    return `
+                        <div class="transaction-item ${transaction.type}">
+                            <div class="transaction-icon" style="background: ${category?.color || '#3b82f6'}">
+                                <i class="${category?.icon || 'fas fa-question'}"></i>
+                            </div>
+                            <div class="transaction-info">
+                                <div class="transaction-name">${transaction.description}</div>
+                                <div class="transaction-meta">
+                                    <span>${formatDate(transaction.date)} ${isToday ? '<span class="badge badge-success">Hoje</span>' : ''}</span>
+                                    <span>${category?.name || 'Sem categoria'}</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                                ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-left: 10px;">
+                                <button onclick="editTransaction(${transaction.id})" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteTransaction(${transaction.id})" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+           
+            document.getElementById('month-details').style.display = 'block';
+            document.getElementById('month-details').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeMonthDetails() {
+            document.getElementById('month-details').style.display = 'none';
+        }
+
+        // =========================================
+        // CATEGORIAS E FILTROS
+        // =========================================
+        function updateCategorySelect(type) {
+            const select = document.getElementById('category');
+            select.innerHTML = '';
+           
+            const filteredCategories = categories.filter(c => c.type === type);
+           
+            if (filteredCategories.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma categoria disponível';
+                select.appendChild(option);
+                return;
+            }
+           
+            filteredCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        function updateCategorySelects() {
+            const filterSelect = document.getElementById('recent-filter-category');
+            filterSelect.innerHTML = '<option value="">Todas categorias</option>';
+           
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = `${category.type === 'income' ? '💰 ' : '💸 '}${category.name}`;
+                filterSelect.appendChild(option);
+            });
+           
+            updateCategorySelect('income');
+        }
+
+        function updateYearFilter() {
+            // Função mantida para compatibilidade
+        }
+
+        // =========================================
+        // CONTROLES DE DATA
+        // =========================================
+        function changeYear(delta) {
+            currentYear += delta;
+            updateDateDisplay();
+            updateDashboard();
+            updateYearHistory();
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+           
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+           
+            updateDateDisplay();
+            updateDashboard();
+        }
+
+        function goToToday() {
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth();
+            updateDateDisplay();
+            updateDashboard();
+            updateYearHistory();
+            showNotification('Voltou para o mês atual');
+        }
+
+        function updateDateDisplay() {
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+           
+            document.getElementById('current-month-year').textContent =
+                `${monthNames[currentMonth]} ${currentYear}`;
+           
+            document.getElementById('current-year').textContent = currentYear;
+            document.getElementById('current-month').textContent = monthNames[currentMonth];
+           
+            document.getElementById('year-selector').value = currentYear;
+        }
+
+        // =========================================
+        // UTILITÁRIOS
+        // =========================================
+        function getMonthTransactions(year, month) {
+            return transactions.filter(t => {
+                const date = new Date(t.date);
+                return date.getFullYear() === year && date.getMonth() === month;
+            });
+        }
+
+        function formatDate(dateString) {
+            try {
+                return new Date(dateString).toLocaleDateString('pt-BR');
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                padding: 20px 25px;
+                background: ${type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--success)'};
+                color: white;
+                border-radius: 10px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: fadeIn 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                max-width: 400px;
+                font-weight: 500;
+            `;
+           
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'check-circle'}" style="font-size: 1.5rem;"></i>
+                <span>${message}</span>
+            `;
+           
+            document.body.appendChild(notification);
+           
+            setTimeout(() => {
+                notification.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
