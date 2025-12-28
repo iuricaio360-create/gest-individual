@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minhas Finanças - Controle Financeiro Pessoal</title>
-    
-    <!-- Favicon e ícones do site -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -52,63 +47,6 @@
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Capa/Header com imagem de fundo */
-        .cover {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: var(--radius);
-            padding: 40px;
-            margin-bottom: 30px;
-            text-align: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.2);
-        }
-
-        .cover::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none" opacity="0.1"><path d="M0,0 L100,0 L100,100 Z" fill="white"/></svg>');
-            background-size: cover;
-        }
-
-        .cover-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .cover-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .cover h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .cover p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
             margin: 0 auto;
         }
 
@@ -794,24 +732,6 @@
 
         /* Responsividade */
         @media (max-width: 768px) {
-            .cover {
-                padding: 30px 20px;
-            }
-            
-            .cover h1 {
-                font-size: 2.2rem;
-            }
-            
-            .cover p {
-                font-size: 1rem;
-            }
-            
-            .cover-icon {
-                width: 80px;
-                height: 80px;
-                font-size: 3rem;
-            }
-           
             .tabs {
                 flex-direction: column;
             }
@@ -877,24 +797,16 @@
 </head>
 <body>
     <div class="container">
-        <!-- Capa/Header -->
-        <div class="cover">
-            <div class="cover-content">
-                <div class="cover-icon">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <h1>Minhas Finanças</h1>
-                <p>Controle total das suas finanças pessoais de forma simples e eficiente</p>
-            </div>
-        </div>
-
-        <!-- Saldo Atual -->
-        <div class="header">
+        <!-- Header com Saldo -->
+        <header class="header">
+            <h1><i class="fas fa-wallet"></i> Minhas Finanças</h1>
+            <p>Controle financeiro pessoal simplificado</p>
+            
             <div class="header-balance" id="header-balance">
                 <div class="header-balance-label">Saldo Total Disponível</div>
                 <div class="header-balance-value" id="total-balance-display">R$ 0,00</div>
             </div>
-        </div>
+        </header>
 
         <!-- Data e Hora Atual -->
         <div class="current-time">
