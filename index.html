@@ -1,1219 +1,2236 @@
-<script>
-    // =========================================
-    // CONFIGURAÇÃO E DADOS
-    // =========================================
-    let transactions = [];
-    let categories = [];
-    let currentDate = new Date();
-    let currentYear = currentDate.getFullYear();
-    let currentMonth = currentDate.getMonth();
-    let currency = 'BRL';
-    let initialBalance = 0;
-    let currentSection = 'dashboard';
-    let editingCategoryId = null;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Finanças - Controle Financeiro Pessoal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --light: #60a5fa;
+            --success: #10b981;
+            --success-light: #34d399;
+            --success-dark: #059669;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --warning-light: #fbbf24;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --balance-positive: linear-gradient(135deg, #059669, #10b981);
+            --balance-negative: linear-gradient(135deg, #dc2626, #ef4444);
+            --balance-neutral: linear-gradient(135deg, #4b5563, #6b7280);
+        }
 
-    // Categorias padrão
-    const defaultCategories = [
-        // Ganhos
-        { id: 1, name: 'Salário', type: 'income', color: '#10b981', icon: 'fas fa-money-bill-wave' },
-        { id: 2, name: 'Freelance', type: 'income', color: '#3b82f6', icon: 'fas fa-laptop-code' },
-        { id: 3, name: 'Investimentos', type: 'income', color: '#8b5cf6', icon: 'fas fa-chart-line' },
-        { id: 4, name: 'Presente', type: 'income', color: '#f59e0b', icon: 'fas fa-gift' },
-        { id: 5, name: 'Outros Ganhos', type: 'income', color: '#6366f1', icon: 'fas fa-coins' },
-       
-        // Gastos
-        { id: 6, name: 'Alimentação', type: 'expense', color: '#ef4444', icon: 'fas fa-utensils' },
-        { id: 7, name: 'Transporte', type: 'expense', color: '#f97316', icon: 'fas fa-car' },
-        { id: 8, name: 'Moradia', type: 'expense', color: '#14b8a6', icon: 'fas fa-home' },
-        { id: 9, name: 'Lazer', type: 'expense', color: '#8b5cf6', icon: 'fas fa-film' },
-        { id: 10, name: 'Saúde', type: 'expense', color: '#ec4899', icon: 'fas fa-heart' },
-        { id: 11, name: 'Educação', type: 'expense', color: '#06b6d4', icon: 'fas fa-graduation-cap' },
-        { id: 12, name: 'Compras', type: 'expense', color: '#f43f5e', icon: 'fas fa-shopping-cart' },
-        { id: 13, name: 'Outros Gastos', type: 'expense', color: '#64748b', icon: 'fas fa-question-circle' }
-    ];
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-    // =========================================
-    // FUNÇÕES DE FORMATAÇÃO DE VALOR
-    // =========================================
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Menu Hambúrguer */
+        .menu-toggle {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            height: 100%;
+            background: white;
+            z-index: 1001;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .menu-container.active {
+            right: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .menu-title {
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-menu:hover {
+            color: var(--primary);
+        }
+
+        .menu-section {
+            margin-bottom: 30px;
+        }
+
+        .menu-section-title {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .menu-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+        }
+
+        .menu-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Header com Saldo */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        /* Saldo Atual no Header - CORES MELHORADAS */
+        .header-balance {
+            background: var(--balance-neutral);
+            color: white;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .header-balance.positive {
+            background: var(--balance-positive);
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2), 0 2px 4px -1px rgba(5, 150, 105, 0.1);
+        }
+
+        .header-balance.negative {
+            background: var(--balance-negative);
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2), 0 2px 4px -1px rgba(220, 38, 38, 0.1);
+        }
+
+        .header-balance-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .header-balance-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Data e Hora Atual */
+        .current-time {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-left: 4px solid var(--accent);
+        }
+
+        .current-time .date {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .current-time .time {
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        /* Painel de Saldo Inicial - COM BOTÃO VERDE */
+        .initial-balance-panel {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--success);
+        }
+
+        .initial-balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .initial-balance-title {
+            color: var(--success-dark);
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .initial-balance-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .initial-balance-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .current-balance-display {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--success);
+        }
+
+        /* Controle de Data - CALENDÁRIO INFINITO */
+        .date-control {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .date-display {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary);
+            padding: 10px 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .date-selectors {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .year-selector, .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .year-btn, .month-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .year-btn:hover, .month-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .year-display, .month-display {
+            min-width: 100px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+        }
+
+        /* Botão Verde para Saldo Inicial */
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Cards de Resumo - Clean */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            border-top: 4px solid;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card.income { border-color: var(--success); }
+        .summary-card.expense { border-color: var(--danger); }
+        .summary-card.balance { border-color: var(--accent); }
+
+        .summary-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .summary-card.income .summary-icon { background: linear-gradient(135deg, var(--success), var(--success-light)); }
+        .summary-card.expense .summary-icon { background: linear-gradient(135deg, var(--danger), var(--danger-light)); }
+        .summary-card.balance .summary-icon { background: linear-gradient(135deg, var(--accent), var(--light)); }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-card.income .summary-value { color: var(--success); }
+        .summary-card.expense .summary-value { color: var(--danger); }
+        .summary-card.balance .summary-value { color: var(--accent); }
+
+        .summary-label {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Layout Principal - Simples */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 992px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Painel de Transações - Clean */
+        .transactions-panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .panel-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .transaction-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .transaction-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: white;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .income .transaction-icon { background: linear-gradient(135deg, var(--success), var(--success-light)); }
+        .expense .transaction-icon { background: linear-gradient(135deg, var(--danger), var(--danger-light)); }
+
+        .transaction-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-left: auto;
+            padding-left: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Formulário Simples */
+        .form-panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .form-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Campo de valor grande */
+        .form-input.large-input {
+            font-size: 1.3rem;
+            font-weight: 500;
+            padding: 16px 20px;
+            text-align: center;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .type-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .type-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--light));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Botão secundário */
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #9ca3af);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        /* Filtros Melhorados - COM CALENDÁRIO INFINITO */
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            font-size: 0.95rem;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-year-input {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            font-size: 0.95rem;
+            width: 120px;
+        }
+
+        /* Histórico por Ano */
+        .year-history-panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .year-summary {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .year-summary-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .year-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .year-summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .year-stat-card {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .year-stat-card.income { background: rgba(16, 185, 129, 0.1); }
+        .year-stat-card.expense { background: rgba(239, 68, 68, 0.1); }
+        .year-stat-card.balance { background: rgba(59, 130, 246, 0.1); }
+
+        .year-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .year-stat-card.income .year-stat-value { color: var(--success); }
+        .year-stat-card.expense .year-stat-value { color: var(--danger); }
+        .year-stat-card.balance .year-stat-value { color: var(--accent); }
+
+        .year-stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .year-history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .year-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .year-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .year-card.current {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .year-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .year-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .year-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .year-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .year-value {
+            font-weight: 600;
+        }
+
+        /* Detalhes do Mês */
+        .month-details {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+            display: none;
+        }
+
+        .month-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .month-details-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        /* Upload de Imagem para Categorias */
+        .image-upload-container {
+            margin-top: 15px;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-container:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .image-upload-label {
+            display: block;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .image-upload-label i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+
+        .remove-image-btn {
+            margin-top: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Seções do site */
+        .site-section {
+            display: none;
+        }
+
+        .site-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Estado Vazio */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--border);
+        }
+
+        /* Utilitários */
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                top: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+            
+            .menu-container {
+                width: 85%;
+                max-width: 300px;
+            }
+            
+            .date-selectors {
+                flex-direction: column;
+            }
+           
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+           
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+           
+            .filter-select, .filter-year-input {
+                min-width: 100%;
+            }
+           
+            .header h1 {
+                font-size: 2rem;
+            }
+           
+            .header-balance-value {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Scrollbar Personalizada */
+        .transaction-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .transaction-list::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 3px;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Hambúrguer -->
+    <div class="menu-toggle" id="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
     
-    // Formata valor para o formato brasileiro
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: currency
-        }).format(value);
-    }
+    <div class="menu-overlay" id="menu-overlay"></div>
+    
+    <div class="menu-container" id="menu-container">
+        <div class="menu-header">
+            <h3 class="menu-title">Menu</h3>
+            <button class="close-menu" id="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="menu-section">
+            <div class="menu-section-title">Navegação</div>
+            <a href="#" class="menu-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item" data-section="transactions">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transações</span>
+            </a>
+            <a href="#" class="menu-item" data-section="history">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="#" class="menu-item" data-section="reports">
+                <i class="fas fa-chart-pie"></i>
+                <span>Relatórios</span>
+            </a>
+        </div>
+        
+        <div class="menu-section">
+            <div class="menu-section-title">Configurações</div>
+            <a href="#" class="menu-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <a href="#" class="menu-item" data-section="categories">
+                <i class="fas fa-tags"></i>
+                <span>Categorias</span>
+            </a>
+            <a href="#" class="menu-item" data-section="balance">
+                <i class="fas fa-piggy-bank"></i>
+                <span>Saldo Inicial</span>
+            </a>
+        </div>
+    </div>
 
-    // Formata número para string formatada (1.234,56)
-    function formatNumberToCurrency(value) {
-        if (value === null || value === undefined || value === '') return '0,00';
-        
-        let numValue = typeof value === 'number' ? value : parseFloat(value);
-        if (isNaN(numValue)) return '0,00';
-        
-        return numValue.toFixed(2)
-            .replace('.', ',')
-            .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    // Converte string formatada para número
-    function parseCurrencyToNumber(currencyString) {
-        if (!currencyString) return 0;
-        
-        let cleaned = currencyString.replace(/[^\d,.-]/g, '');
-        
-        if (cleaned.includes(',')) {
-            cleaned = cleaned.replace(/\./g, '').replace(',', '.');
-        }
-        
-        const parsed = parseFloat(cleaned);
-        return isNaN(parsed) ? 0 : parsed;
-    }
-
-    // Formata input enquanto digita
-    function formatCurrencyInput(event) {
-        let input = event.target;
-        let value = input.value.replace(/\D/g, '');
-        
-        if (value.length === 0) {
-            input.value = '';
-            return;
-        }
-        
-        let numberValue = parseInt(value) / 100;
-        input.value = formatNumberToCurrency(numberValue);
-    }
-
-    // Formata valor ao sair do campo
-    function formatCurrencyOnBlur(event) {
-        let input = event.target;
-        let value = input.value;
-        
-        if (value === '') {
-            input.value = '0,00';
-            return;
-        }
-        
-        let numberValue = parseCurrencyToNumber(value);
-        input.value = formatNumberToCurrency(numberValue);
-    }
-
-    // =========================================
-    // INICIALIZAÇÃO
-    // =========================================
-    document.addEventListener('DOMContentLoaded', function() {
-        loadData();
-        initializeApp();
-        setupEventListeners();
-        updateUI();
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
-    });
-
-    function loadData() {
-        // Carregar transações
-        const savedTransactions = localStorage.getItem('minhas-financas-transactions');
-        if (savedTransactions) {
-            try {
-                transactions = JSON.parse(savedTransactions);
-            } catch (e) {
-                console.error('Erro ao carregar transações:', e);
-                transactions = [];
-            }
-        }
-
-        // Carregar categorias
-        const savedCategories = localStorage.getItem('minhas-financas-categories');
-        if (savedCategories) {
-            try {
-                categories = JSON.parse(savedCategories);
-            } catch (e) {
-                console.error('Erro ao carregar categorias:', e);
-                categories = defaultCategories;
-            }
-        } else {
-            categories = defaultCategories;
-            saveCategories();
-        }
-
-        // Carregar saldo inicial
-        const savedInitialBalance = localStorage.getItem('minhas-financas-initial-balance');
-        if (savedInitialBalance) {
-            try {
-                initialBalance = parseFloat(savedInitialBalance) || 0;
-            } catch (e) {
-                console.error('Erro ao carregar saldo inicial:', e);
-                initialBalance = 0;
-            }
-        }
-    }
-
-    function saveData() {
-        localStorage.setItem('minhas-financas-transactions', JSON.stringify(transactions));
-        localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
-        localStorage.setItem('minhas-financas-initial-balance', initialBalance.toString());
-    }
-
-    function saveCategories() {
-        localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
-    }
-
-    function initializeApp() {
-        // Configurar data atual no formulário
-        document.getElementById('transaction-form').reset();
-        document.getElementById('transaction-date').valueAsDate = new Date();
-       
-        // Preencher campo de saldo inicial
-        document.getElementById('initial-balance-input').value = formatNumberToCurrency(initialBalance);
-        document.getElementById('initial-balance-input-2').value = formatNumberToCurrency(initialBalance);
-        document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
-        document.getElementById('current-initial-balance-2').textContent = formatCurrency(initialBalance);
-       
-        // Inicializar selects de categoria
-        updateCategorySelects();
-       
-        // Configurar controles de data
-        updateDateDisplay();
-        
-        // Configurar ano atual nos filtros
-        document.getElementById('year-selector-input').value = currentYear;
-        document.getElementById('all-filter-year').value = currentYear;
-        document.getElementById('report-year').value = currentYear;
-        
-        // Atualizar relatórios
-        updateReports();
-    }
-
-    function setupEventListeners() {
-        // Menu hambúrguer
-        document.getElementById('menu-toggle').addEventListener('click', toggleMenu);
-        document.getElementById('close-menu').addEventListener('click', toggleMenu);
-        document.getElementById('menu-overlay').addEventListener('click', toggleMenu);
-        
-        // Itens do menu
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const section = this.getAttribute('data-section');
-                if (section) {
-                    switchSection(section);
-                    toggleMenu();
-                }
-            });
-        });
-
-        // Formulário de transação
-        document.getElementById('transaction-form').addEventListener('submit', addTransaction);
-       
-        // Formatação automática do campo de valor
-        const amountInput = document.getElementById('amount');
-        amountInput.addEventListener('input', formatCurrencyInput);
-        amountInput.addEventListener('blur', formatCurrencyOnBlur);
-        
-        // Formatação do campo de saldo inicial
-        const initialBalanceInput = document.getElementById('initial-balance-input');
-        initialBalanceInput.addEventListener('input', formatCurrencyInput);
-        initialBalanceInput.addEventListener('blur', formatCurrencyOnBlur);
-        
-        const initialBalanceInput2 = document.getElementById('initial-balance-input-2');
-        initialBalanceInput2.addEventListener('input', formatCurrencyInput);
-        initialBalanceInput2.addEventListener('blur', formatCurrencyOnBlur);
-        
-        // Atualizar saldo inicial
-        document.getElementById('update-initial-balance-btn').addEventListener('click', updateInitialBalance);
-        document.getElementById('update-initial-balance-btn-2').addEventListener('click', updateInitialBalance);
-        
-        // Seletor de tipo
-        document.querySelectorAll('.type-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                updateCategorySelect(this.getAttribute('data-type'));
-            });
-        });
-
-        // Controles de data (CALENDÁRIO INFINITO)
-        document.getElementById('prev-year').addEventListener('click', () => changeYear(-1));
-        document.getElementById('next-year').addEventListener('click', () => changeYear(1));
-        document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
-        document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
-        document.getElementById('today-btn').addEventListener('click', goToToday);
-
-        // Filtros de transações recentes
-        document.getElementById('recent-filter-type').addEventListener('change', updateRecentTransactions);
-        document.getElementById('recent-filter-category').addEventListener('change', updateRecentTransactions);
-        document.getElementById('recent-filter-period').addEventListener('change', updateRecentTransactions);
-        
-        // Filtros de todas as transações (CALENDÁRIO INFINITO)
-        document.getElementById('all-filter-type').addEventListener('change', updateAllTransactions);
-        document.getElementById('all-filter-category').addEventListener('change', updateAllTransactions);
-        document.getElementById('all-filter-year').addEventListener('input', updateAllTransactions);
-        document.getElementById('all-filter-month').addEventListener('change', updateAllTransactions);
-        
-        // Histórico (CALENDÁRIO INFINITO)
-        document.getElementById('load-year-history').addEventListener('click', function() {
-            const year = parseInt(document.getElementById('year-selector-input').value);
-            if (year && year >= 2000 && year <= 2100) {
-                updateYearHistory(year);
-            } else {
-                showNotification('Por favor, digite um ano válido (2000-2100)', 'error');
-            }
-        });
-        
-        // Relatórios (CALENDÁRIO INFINITO)
-        document.getElementById('generate-report').addEventListener('click', generateReport);
-        
-        // Configurações
-        document.getElementById('save-settings').addEventListener('click', saveSettings);
-        
-        // Categorias
-        document.getElementById('add-category-btn').addEventListener('click', showCategoryForm);
-        document.getElementById('cancel-category-btn').addEventListener('click', hideCategoryForm);
-        document.getElementById('category-form').addEventListener('submit', saveCategory);
-        
-        // Upload de imagem para categorias
-        document.getElementById('category-image-upload').addEventListener('change', handleCategoryImageUpload);
-        document.getElementById('remove-category-image').addEventListener('click', removeCategoryImage);
-    }
-
-    // =========================================
-    // MENU HAMBÚRGUER
-    // =========================================
-    function toggleMenu() {
-        const menuContainer = document.getElementById('menu-container');
-        const menuOverlay = document.getElementById('menu-overlay');
-        
-        menuContainer.classList.toggle('active');
-        menuOverlay.classList.toggle('active');
-    }
-
-    function switchSection(sectionId) {
-        // Esconder todas as seções
-        document.querySelectorAll('.site-section').forEach(section => {
-            section.classList.remove('active');
-        });
-        
-        // Mostrar a seção selecionada
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-            
-            // Atualizar menu ativo
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('data-section') === sectionId) {
-                    item.classList.add('active');
-                }
-            });
-            
-            // Atualizar a seção atual
-            currentSection = sectionId;
-            
-            // Atualizar o conteúdo da seção se necessário
-            if (sectionId === 'transactions') {
-                updateAllTransactions();
-            } else if (sectionId === 'reports') {
-                updateReports();
-            } else if (sectionId === 'categories') {
-                updateCategoriesList();
-            } else if (sectionId === 'history') {
-                const currentYear = new Date().getFullYear();
-                document.getElementById('year-selector-input').value = currentYear;
-                updateYearHistory(currentYear);
-            }
-        }
-    }
-
-    // =========================================
-    // DATA E HORA ATUAL
-    // =========================================
-    function updateCurrentTime() {
-        const now = new Date();
-       
-        const dateOptions = {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            timeZone: 'America/Sao_Paulo'
-        };
-        const dateFormatter = new Intl.DateTimeFormat('pt-BR', dateOptions);
-        const dateString = dateFormatter.format(now);
-       
-        const timeOptions = {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            timeZone: 'America/Sao_Paulo'
-        };
-        const timeFormatter = new Intl.DateTimeFormat('pt-BR', timeOptions);
-        const timeString = timeFormatter.format(now);
-       
-        document.getElementById('current-date-display').textContent =
-            dateString.charAt(0).toUpperCase() + dateString.slice(1);
-        document.getElementById('current-time-display').textContent = timeString;
-    }
-
-    // =========================================
-    // FUNÇÕES PRINCIPAIS
-    // =========================================
-    function updateUI() {
-        updateDashboard();
-        updateRecentTransactions();
-        updateYearHistory(currentYear);
-        updateTotalBalanceDisplay();
-        updateAllTransactions();
-    }
-
-    // =========================================
-    // SALDO INICIAL - FUNÇÃO MODIFICADA
-    // =========================================
-    function updateInitialBalance() {
-        let input;
-        if (currentSection === 'balance') {
-            input = document.getElementById('initial-balance-input-2');
-        } else {
-            input = document.getElementById('initial-balance-input');
-        }
-        
-        const value = parseCurrencyToNumber(input.value);
-        
-        if (isNaN(value) || value < 0) {
-            showNotification('Por favor, digite um valor válido!', 'error');
-            return;
-        }
-        
-        initialBalance = value;
-        saveData();
-        updateTotalBalanceDisplay();
-        document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
-        document.getElementById('current-initial-balance-2').textContent = formatCurrency(initialBalance);
-        showNotification('Saldo inicial atualizado com sucesso!');
-    }
-
-    // =========================================
-    // SALDO TOTAL - FUNÇÃO MODIFICADA PARA ABATER GASTOS
-    // =========================================
-    function updateTotalBalanceDisplay() {
-        // Calcular totais de TODAS as transações (não apenas do mês)
-        let totalIncomeAll = 0;
-        let totalExpenseAll = 0;
-        
-        transactions.forEach(transaction => {
-            if (transaction.type === 'income') {
-                totalIncomeAll += transaction.amount;
-            } else {
-                totalExpenseAll += transaction.amount;
-            }
-        });
-        
-        // Calcular saldo total: saldo inicial + todos os ganhos - todos os gastos
-        const totalBalance = initialBalance + totalIncomeAll - totalExpenseAll;
-        
-        // Atualizar display no header
-        const balanceElement = document.getElementById('total-balance-display');
-        const headerBalance = document.getElementById('header-balance');
-        
-        balanceElement.textContent = formatCurrency(totalBalance);
-        
-        // Atualizar cores do header baseado no saldo
-        if (totalBalance > 0) {
-            headerBalance.className = 'header-balance positive';
-        } else if (totalBalance < 0) {
-            headerBalance.className = 'header-balance negative';
-        } else {
-            headerBalance.className = 'header-balance';
-        }
-    }
-
-    // =========================================
-    // TRANSAÇÕES - FUNÇÃO MODIFICADA PARA ATUALIZAR SALDO TOTAL
-    // =========================================
-    function addTransaction(e) {
-        e.preventDefault();
-       
-        const type = document.querySelector('.type-btn.active').getAttribute('data-type');
-        const description = document.getElementById('description').value.trim();
-        const amount = parseCurrencyToNumber(document.getElementById('amount').value);
-        const categoryId = parseInt(document.getElementById('category').value);
-        const dateInput = document.getElementById('transaction-date').value;
-       
-        if (!description || amount <= 0 || !categoryId) {
-            showNotification('Por favor, preencha todos os campos corretamente!', 'error');
-            return;
-        }
-       
-        const transaction = {
-            id: Date.now() + Math.floor(Math.random() * 1000),
-            type: type,
-            description: description,
-            amount: amount,
-            categoryId: categoryId,
-            date: dateInput || new Date().toISOString().split('T')[0],
-            createdAt: new Date().toISOString()
-        };
-       
-        transactions.push(transaction);
-        saveData();
-        
-        // ATUALIZAR O SALDO TOTAL IMEDIATAMENTE
-        updateTotalBalanceDisplay();
-        updateUI(); // Atualiza o resto da interface
-        
-        document.getElementById('transaction-form').reset();
-        document.getElementById('transaction-date').valueAsDate = new Date();
-        document.getElementById('amount').value = '';
-       
-        showNotification('Transação adicionada com sucesso!');
-    }
-
-    function editTransaction(id) {
-        const transaction = transactions.find(t => t.id === id);
-        if (!transaction) {
-            console.error('Transação não encontrada:', id);
-            return;
-        }
-        
-        const newDescription = prompt('Nova descrição:', transaction.description);
-        if (newDescription === null || newDescription.trim() === '') return;
-        
-        const currentValue = formatNumberToCurrency(transaction.amount);
-        const newAmount = prompt('Novo valor (R$):', currentValue);
-        if (newAmount === null) return;
-        
-        const parsedAmount = parseCurrencyToNumber(newAmount);
-        if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            showNotification('Valor inválido!', 'error');
-            return;
-        }
-        
-        transaction.description = newDescription.trim();
-        transaction.amount = parsedAmount;
-        saveData();
-        updateTotalBalanceDisplay(); // Atualizar saldo total
-        updateUI();
-       
-        showNotification('Transação atualizada!');
-    }
-
-    function deleteTransaction(id) {
-        if (confirm('Tem certeza que deseja excluir esta transação?')) {
-            const initialLength = transactions.length;
-            transactions = transactions.filter(t => t.id !== id);
-            
-            if (transactions.length < initialLength) {
-                saveData();
-                updateTotalBalanceDisplay(); // Atualizar saldo total
-                updateUI();
-                showNotification('Transação excluída!');
-            } else {
-                showNotification('Transação não encontrada!', 'error');
-            }
-        }
-    }
-
-    // =========================================
-    // DASHBOARD - FUNÇÃO MODIFICADA
-    // =========================================
-    function updateDashboard() {
-        updateSummary();
-        // updateTotalBalanceDisplay() NÃO é chamado aqui pois já é chamado separadamente
-    }
-
-    function updateSummary() {
-        const monthTransactions = getMonthTransactions(currentYear, currentMonth);
-       
-        let totalIncome = 0;
-        let totalExpense = 0;
-       
-        monthTransactions.forEach(transaction => {
-            if (transaction.type === 'income') {
-                totalIncome += transaction.amount;
-            } else {
-                totalExpense += transaction.amount;
-            }
-        });
-       
-        const balance = totalIncome - totalExpense;
-       
-        document.getElementById('total-income').textContent = formatCurrency(totalIncome);
-        document.getElementById('total-expense').textContent = formatCurrency(totalExpense);
-        document.getElementById('total-balance').textContent = formatCurrency(balance);
-    }
-
-    function updateRecentTransactions() {
-        const container = document.getElementById('recent-transactions');
-        const typeFilter = document.getElementById('recent-filter-type').value;
-        const categoryFilter = document.getElementById('recent-filter-category').value;
-        const periodFilter = document.getElementById('recent-filter-period').value;
-       
-        let filtered = [...transactions];
-       
-        const now = new Date();
-        if (periodFilter === 'current') {
-            filtered = getMonthTransactions(currentYear, currentMonth);
-        } else if (periodFilter === 'last30') {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            filtered = filtered.filter(t => new Date(t.date) >= thirtyDaysAgo);
-        } else if (periodFilter === 'last7') {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            filtered = filtered.filter(t => new Date(t.date) >= sevenDaysAgo);
-        }
-       
-        if (typeFilter) {
-            filtered = filtered.filter(t => t.type === typeFilter);
-        }
-       
-        if (categoryFilter) {
-            filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
-        }
-       
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-        filtered = filtered.slice(0, 20);
-       
-        if (filtered.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <p>Nenhuma transação encontrada</p>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Adicione sua primeira transação usando o formulário</p>
-                </div>
-            `;
-            return;
-        }
-       
-        container.innerHTML = filtered.map(transaction => {
-            const category = categories.find(c => c.id === transaction.categoryId);
-            const date = new Date(transaction.date);
-            const isToday = date.toDateString() === new Date().toDateString();
-           
-            // Verificar se a categoria tem imagem
-            const iconStyle = category?.image 
-                ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
-                : `background: ${category?.color || '#3b82f6'};`;
-           
-            return `
-                <div class="transaction-item ${transaction.type}">
-                    <div class="transaction-icon" style="${iconStyle}">
-                        ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
-                    </div>
-                    <div class="transaction-info">
-                        <div class="transaction-name">${transaction.description}</div>
-                        <div class="transaction-meta">
-                            <span>${formatDate(transaction.date)} ${isToday ? '<span class="badge badge-success">Hoje</span>' : ''}</span>
-                            <span>${category?.name || 'Sem categoria'}</span>
-                        </div>
-                    </div>
-                    <div class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
-                        ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-left: 10px;">
-                        <button onclick="editTransaction(${transaction.id})" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem;">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteTransaction(${transaction.id})" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // =========================================
-    // TODAS AS TRANSAÇÕES COM CALENDÁRIO INFINITO
-    // =========================================
-    function updateAllTransactions() {
-        const container = document.getElementById('all-transactions');
-        const typeFilter = document.getElementById('all-filter-type').value;
-        const categoryFilter = document.getElementById('all-filter-category').value;
-        const yearFilter = document.getElementById('all-filter-year').value;
-        const monthFilter = document.getElementById('all-filter-month').value;
-       
-        let filtered = [...transactions];
-       
-        // Filtrar por tipo
-        if (typeFilter) {
-            filtered = filtered.filter(t => t.type === typeFilter);
-        }
-       
-        // Filtrar por categoria
-        if (categoryFilter) {
-            filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
-        }
-       
-        // Filtrar por ano (CALENDÁRIO INFINITO)
-        if (yearFilter) {
-            const year = parseInt(yearFilter);
-            if (!isNaN(year) && year >= 2000 && year <= 2100) {
-                filtered = filtered.filter(t => {
-                    const date = new Date(t.date);
-                    return date.getFullYear() === year;
-                });
-            }
-        }
-       
-        // Filtrar por mês
-        if (monthFilter !== '') {
-            filtered = filtered.filter(t => {
-                const date = new Date(t.date);
-                return date.getMonth() === parseInt(monthFilter);
-                });
-        }
-       
-        // Ordenar por data (mais recente primeiro)
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-       
-        if (filtered.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <p>Nenhuma transação encontrada</p>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Tente ajustar os filtros</p>
-                </div>
-            `;
-            return;
-        }
-       
-        container.innerHTML = filtered.map(transaction => {
-            const category = categories.find(c => c.id === transaction.categoryId);
-            const date = new Date(transaction.date);
-            const isToday = date.toDateString() === new Date().toDateString();
-           
-            // Verificar se a categoria tem imagem
-            const iconStyle = category?.image 
-                ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
-                : `background: ${category?.color || '#3b82f6'};`;
-           
-            return `
-                <div class="transaction-item ${transaction.type}">
-                    <div class="transaction-icon" style="${iconStyle}">
-                        ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
-                    </div>
-                    <div class="transaction-info">
-                        <div class="transaction-name">${transaction.description}</div>
-                        <div class="transaction-meta">
-                            <span>${formatDate(transaction.date)} ${isToday ? '<span class="badge badge-success">Hoje</span>' : ''}</span>
-                            <span>${category?.name || 'Sem categoria'}</span>
-                        </div>
-                    </div>
-                    <div class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
-                        ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-left: 10px;">
-                        <button onclick="editTransaction(${transaction.id})" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem;">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteTransaction(${transaction.id})" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // =========================================
-    // RELATÓRIOS MELHORADOS
-    // =========================================
-    function updateReports() {
-        // Calcular totais
-        let totalIncome = 0;
-        let totalExpense = 0;
-        
-        transactions.forEach(transaction => {
-            if (transaction.type === 'income') {
-                totalIncome += transaction.amount;
-            } else {
-                totalExpense += transaction.amount;
-            }
-        });
-        
-        // Calcular taxa de economia
-        let savingsRate = 0;
-        if (totalIncome > 0) {
-            savingsRate = ((totalIncome - totalExpense) / totalIncome) * 100;
-        }
-        
-        // Atualizar valores nos cards
-        document.getElementById('report-income').textContent = formatCurrency(totalIncome);
-        document.getElementById('report-expense').textContent = formatCurrency(totalExpense);
-        document.getElementById('report-savings').textContent = savingsRate.toFixed(1) + '%';
-    }
-
-    function generateReport() {
-        const yearInput = document.getElementById('report-year').value;
-        const monthSelect = document.getElementById('report-month').value;
-        const typeSelect = document.getElementById('report-type').value;
-        
-        // Validar ano (CALENDÁRIO INFINITO)
-        const year = parseInt(yearInput);
-        if (!year || year < 2000 || year > 2100) {
-            showNotification('Por favor, digite um ano válido (2000-2100)', 'error');
-            return;
-        }
-        
-        let filtered = transactions.filter(t => {
-            const date = new Date(t.date);
-            const yearMatch = date.getFullYear() === year;
-            const monthMatch = monthSelect === '' || date.getMonth() === parseInt(monthSelect);
-            const typeMatch = t.type === typeSelect;
-            
-            return yearMatch && monthMatch && typeMatch;
-        });
-        
-        // Calcular totais por categoria
-        const categoryTotals = {};
-        filtered.forEach(transaction => {
-            const category = categories.find(c => c.id === transaction.categoryId);
-            const categoryName = category ? category.name : 'Sem categoria';
-            
-            if (!categoryTotals[categoryName]) {
-                categoryTotals[categoryName] = 0;
-            }
-            categoryTotals[categoryName] += transaction.amount;
-        });
-        
-        // Ordenar categorias por valor
-        const sortedCategories = Object.entries(categoryTotals)
-            .sort((a, b) => b[1] - a[1]);
-        
-        // Gerar HTML do relatório
-        const reportContainer = document.getElementById('report-results');
-        const monthNames = [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-        ];
-        
-        const monthName = monthSelect === '' ? 'Todos os meses' : monthNames[parseInt(monthSelect)];
-        const typeName = typeSelect === 'income' ? 'Ganhos' : 'Gastos';
-        
-        let html = `
-            <h3 style="color: var(--primary); margin-bottom: 20px;">
-                Relatório de ${typeName} - ${monthName} de ${year}
-            </h3>
-            <p style="color: var(--text-light); margin-bottom: 30px;">
-                Total: <strong>${formatCurrency(filtered.reduce((sum, t) => sum + t.amount, 0))}</strong> | 
-                Transações: <strong>${filtered.length}</strong>
-            </p>
-        `;
-        
-        if (sortedCategories.length === 0) {
-            html += `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                    <p>Nenhuma transação encontrada</p>
-                </div>
-            `;
-        } else {
-            html += `
-                <div style="background: var(--bg); border-radius: var(--radius); padding: 20px;">
-                    <h4 style="color: var(--text); margin-bottom: 15px;">Distribuição por Categoria</h4>
-            `;
-            
-            sortedCategories.forEach(([categoryName, total]) => {
-                const percentage = (total / filtered.reduce((sum, t) => sum + t.amount, 0)) * 100;
-                const category = categories.find(c => c.name === categoryName);
-                const color = category ? category.color : '#3b82f6';
+    <div class="container">
+        <!-- Seção Dashboard (Ativa por padrão) -->
+        <section id="dashboard" class="site-section active">
+            <!-- Header com Saldo -->
+            <header class="header">
+                <h1><i class="fas fa-wallet"></i> Minhas Finanças</h1>
+                <p>Controle financeiro pessoal simplificado</p>
                 
-                html += `
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="font-weight: 500;">${categoryName}</span>
-                            <span style="font-weight: 600;">${formatCurrency(total)} (${percentage.toFixed(1)}%)</span>
-                        </div>
-                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
-                            <div style="height: 100%; background: ${color}; width: ${percentage}%;"></div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `</div>`;
-        }
-        
-        reportContainer.innerHTML = html;
-        showNotification('Relatório gerado com sucesso!');
-    }
-
-    // =========================================
-    // CATEGORIAS COM UPLOAD DE IMAGEM
-    // =========================================
-    function updateCategoriesList() {
-        const container = document.getElementById('categories-list');
-        
-        if (categories.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <p>Nenhuma categoria cadastrada</p>
+                <div class="header-balance" id="header-balance">
+                    <div class="header-balance-label">Saldo Total Disponível</div>
+                    <div class="header-balance-value" id="total-balance-display">R$ 0,00</div>
                 </div>
-            `;
-            return;
-        }
-        
-        // Separar categorias por tipo
-        const incomeCategories = categories.filter(c => c.type === 'income');
-        const expenseCategories = categories.filter(c => c.type === 'expense');
-        
-        let html = '';
-        
-        // Categorias de ganhos
-        if (incomeCategories.length > 0) {
-            html += `
-                <div style="margin-bottom: 30px;">
-                    <h4 style="color: var(--success); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-arrow-up"></i> Ganhos
-                    </h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
-            `;
-            
-            incomeCategories.forEach(category => {
-                const iconStyle = category.image 
-                    ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
-                    : `background: ${category.color};`;
+            </header>
+
+            <!-- Data e Hora Atual -->
+            <div class="current-time">
+                <div class="date" id="current-date-display">Carregando...</div>
+                <div class="time" id="current-time-display">Carregando...</div>
+            </div>
+
+            <!-- Painel de Saldo Inicial -->
+            <div class="initial-balance-panel">
+                <div class="initial-balance-header">
+                    <h3 class="initial-balance-title">
+                        <i class="fas fa-piggy-bank"></i> Saldo Inicial da Conta
+                    </h3>
+                    <div class="current-balance-display">
+                        <span style="color: var(--success-dark); margin-right: 10px;">Atual:</span>
+                        <span style="font-weight: 600; font-size: 1.2rem; color: var(--success-dark);" id="current-initial-balance">R$ 0,00</span>
+                    </div>
+                </div>
                 
-                html += `
-                    <div class="category-item" style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;">
-                        <div style="width: 40px; height: 40px; border-radius: 8px; ${iconStyle}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                            ${!category.image ? `<i class="${category.icon}"></i>` : ''}
+                <div class="initial-balance-form">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="color: var(--success-dark);">Digite o valor que você tem na conta:</label>
+                        <input type="text" class="form-input large-input" id="initial-balance-input" placeholder="0,00">
+                    </div>
+                    <!-- Botão verde para saldo inicial -->
+                    <button type="button" class="btn btn-success" id="update-initial-balance-btn">
+                        <i class="fas fa-save"></i> Atualizar Saldo
+                    </button>
+                </div>
+                <p style="margin-top: 15px; color: var(--success-dark); font-size: 0.9rem; text-align: center; opacity: 0.8;">
+                    Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
+                </p>
+            </div>
+
+            <!-- Controle de Data COM CALENDÁRIO INFINITO -->
+            <div class="date-control">
+                <div class="date-display">
+                    <span id="current-month-year">Janeiro 2024</span>
+                </div>
+               
+                <div class="date-selectors">
+                    <div class="year-selector">
+                        <button class="year-btn" id="prev-year">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="year-display" id="current-year">2024</div>
+                        <button class="year-btn" id="next-year">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                   
+                    <div class="month-selector">
+                        <button class="month-btn" id="prev-month">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="month-display" id="current-month">Janeiro</div>
+                        <button class="month-btn" id="next-month">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                   
+                    <button class="btn btn-primary" id="today-btn" style="width: auto; padding: 10px 20px;">
+                        <i class="fas fa-calendar-day"></i> Hoje
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cards de Resumo -->
+            <div class="summary-grid">
+                <div class="summary-card income">
+                    <div class="summary-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="summary-value" id="total-income">R$ 0,00</div>
+                    <div class="summary-label">Total de Ganhos</div>
+                </div>
+               
+                <div class="summary-card expense">
+                    <div class="summary-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="summary-value" id="total-expense">R$ 0,00</div>
+                    <div class="summary-label">Total de Gastos</div>
+                </div>
+               
+                <div class="summary-card balance">
+                    <div class="summary-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="summary-value" id="total-balance">R$ 0,00</div>
+                    <div class="summary-label">Saldo do Mês</div>
+                </div>
+            </div>
+
+            <!-- Layout Principal -->
+            <div class="main-layout">
+                <!-- Transações Recentes com Filtros -->
+                <div class="transactions-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Transações Recentes</h3>
+                        <div class="filters">
+                            <select class="filter-select" id="recent-filter-type">
+                                <option value="">Todos os tipos</option>
+                                <option value="income">Ganhos</option>
+                                <option value="expense">Gastos</option>
+                            </select>
+                            <select class="filter-select" id="recent-filter-category">
+                                <option value="">Todas categorias</option>
+                            </select>
+                            <select class="filter-select" id="recent-filter-period">
+                                <option value="current">Mês atual</option>
+                                <option value="last30">Últimos 30 dias</option>
+                                <option value="last7">Últimos 7 dias</option>
+                                <option value="all">Todas</option>
+                            </select>
                         </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 5px;">${category.name}</div>
-                                <div style="font-size: 0.85rem; color: var(--text-light);">Ganho</div>
+                    </div>
+                    <div class="transaction-list" id="recent-transactions">
+                        <!-- Transações recentes serão carregadas aqui -->
+                    </div>
+                </div>
+               
+                <!-- Formulário de Adição -->
+                <div class="form-panel">
+                    <h3 class="form-title">Adicionar Transação</h3>
+                   
+                    <div class="type-buttons">
+                        <button class="type-btn active" data-type="income">
+                            <i class="fas fa-arrow-up"></i> Ganho
+                        </button>
+                        <button class="type-btn" data-type="expense">
+                            <i class="fas fa-arrow-down"></i> Gasto
+                        </button>
+                    </div>
+                   
+                    <form id="transaction-form">
+                        <div class="form-group">
+                            <label class="form-label">Descrição</label>
+                            <input type="text" class="form-input" id="description" placeholder="Salário, Mercado, Restaurante..." required>
+                        </div>
+                       
+                        <div class="form-group">
+                            <label class="form-label">Valor (R$)</label>
+                            <input type="text" class="form-input large-input" id="amount" placeholder="0,00" required>
+                        </div>
+                       
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <select class="form-select" id="category" required>
+                                <!-- Categorias serão carregadas aqui -->
+                            </select>
+                        </div>
+                       
+                        <div class="form-group">
+                            <label class="form-label">Data</label>
+                            <input type="date" class="form-input" id="transaction-date" value="">
+                        </div>
+                       
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Adicionar Transação
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção Transações COM CALENDÁRIO INFINITO -->
+        <section id="transactions" class="site-section">
+            <div class="header">
+                <h1><i class="fas fa-exchange-alt"></i> Todas as Transações</h1>
+                <p>Visualize, edite ou exclua todas as suas transações</p>
+            </div>
+            
+            <div class="transactions-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">Todas as Transações</h3>
+                    <div class="filters">
+                        <select class="filter-select" id="all-filter-type">
+                            <option value="">Todos os tipos</option>
+                            <option value="income">Ganhos</option>
+                            <option value="expense">Gastos</option>
+                        </select>
+                        <select class="filter-select" id="all-filter-category">
+                            <option value="">Todas categorias</option>
+                        </select>
+                        <!-- Ano com input numérico para calendário infinito -->
+                        <input type="number" class="filter-year-input" id="all-filter-year" placeholder="Ano (ex: 2024)" min="2000" max="2100">
+                        <select class="filter-select" id="all-filter-month">
+                            <option value="">Todos os meses</option>
+                            <option value="0">Janeiro</option>
+                            <option value="1">Fevereiro</option>
+                            <option value="2">Março</option>
+                            <option value="3">Abril</option>
+                            <option value="4">Maio</option>
+                            <option value="5">Junho</option>
+                            <option value="6">Julho</option>
+                            <option value="7">Agosto</option>
+                            <option value="8">Setembro</option>
+                            <option value="9">Outubro</option>
+                            <option value="10">Novembro</option>
+                            <option value="11">Dezembro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="transaction-list" id="all-transactions">
+                    <!-- Todas as transações serão carregadas aqui -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção Histórico COM CALENDÁRIO INFINITO -->
+        <section id="history" class="site-section">
+            <div class="header">
+                <h1><i class="fas fa-history"></i> Histórico Financeiro</h1>
+                <p>Analise seu histórico financeiro por ano e mês</p>
+            </div>
+            
+            <!-- Histórico do Ano -->
+            <div class="year-history-panel">
+                <div class="year-summary">
+                    <h3 class="year-summary-title">Histórico do Ano <span id="selected-year">2024</span></h3>
+                    <div class="year-summary-grid">
+                        <div class="year-stat-card income">
+                            <div class="year-stat-value" id="year-total-income">R$ 0,00</div>
+                            <div class="year-stat-label">Total de Ganhos</div>
+                        </div>
+                        <div class="year-stat-card expense">
+                            <div class="year-stat-value" id="year-total-expense">R$ 0,00</div>
+                            <div class="year-stat-label">Total de Gastos</div>
+                        </div>
+                        <div class="year-stat-card balance">
+                            <div class="year-stat-value" id="year-total-balance">R$ 0,00</div>
+                            <div class="year-stat-label">Saldo do Ano</div>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="panel-header">
+                    <h3 class="panel-title">Histórico Mensal</h3>
+                    <div class="filters">
+                        <!-- Ano com input numérico para calendário infinito -->
+                        <input type="number" class="filter-year-input" id="year-selector-input" placeholder="Digite o ano" min="2000" max="2100" value="2024">
+                        <button class="btn btn-primary" id="load-year-history" style="width: auto; padding: 10px 20px;">
+                            <i class="fas fa-search"></i> Carregar
+                        </button>
+                    </div>
+                </div>
+               
+                <div class="year-history-grid" id="year-history">
+                    <!-- Histórico por ano será carregado aqui -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção Relatórios MELHORADA -->
+        <section id="reports" class="site-section">
+            <div class="header">
+                <h1><i class="fas fa-chart-pie"></i> Relatórios</h1>
+                <p>Visualize gráficos e relatórios detalhados</p>
+            </div>
+            
+            <div class="summary-grid">
+                <div class="summary-card income">
+                    <div class="summary-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="summary-value" id="report-income">R$ 0,00</div>
+                    <div class="summary-label">Ganhos Totais</div>
+                </div>
+               
+                <div class="summary-card expense">
+                    <div class="summary-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="summary-value" id="report-expense">R$ 0,00</div>
+                    <div class="summary-label">Gastos Totais</div>
+                </div>
+               
+                <div class="summary-card balance">
+                    <div class="summary-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="summary-value" id="report-savings">0%</div>
+                    <div class="summary-label">Taxa de Economia</div>
+                </div>
+            </div>
+            
+            <div class="transactions-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">Filtros para Relatórios</h3>
+                    <div class="filters">
+                        <!-- Ano com input numérico para calendário infinito -->
+                        <input type="number" class="filter-year-input" id="report-year" placeholder="Ano (ex: 2024)" min="2000" max="2100">
+                        <select class="filter-select" id="report-month">
+                            <option value="">Todos os meses</option>
+                            <option value="0">Janeiro</option>
+                            <option value="1">Fevereiro</option>
+                            <option value="2">Março</option>
+                            <option value="3">Abril</option>
+                            <option value="4">Maio</option>
+                            <option value="5">Junho</option>
+                            <option value="6">Julho</option>
+                            <option value="7">Agosto</option>
+                            <option value="8">Setembro</option>
+                            <option value="9">Outubro</option>
+                            <option value="10">Novembro</option>
+                            <option value="11">Dezembro</option>
+                        </select>
+                        <select class="filter-select" id="report-type">
+                            <option value="expense">Gastos</option>
+                            <option value="income">Ganhos</option>
+                        </select>
+                        <button class="btn btn-primary" id="generate-report" style="width: auto; padding: 10px 20px;">
+                            <i class="fas fa-chart-bar"></i> Gerar Relatório
+                        </button>
+                    </div>
+                </div>
+                <div id="charts-container" style="padding: 20px;">
+                    <div id="report-results" style="text-align: center;">
+                        <p style="color: var(--text-light);">Use os filtros acima para gerar relatórios detalhados.</p>
+                        <div style="margin-top: 30px; padding: 40px; background: var(--bg); border-radius: var(--radius);">
+                            <i class="fas fa-chart-pie" style="font-size: 3rem; color: var(--border); margin-bottom: 20px;"></i>
+                            <p>Relatórios detalhados serão gerados aqui</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção Configurações -->
+        <section id="settings" class="site-section">
+            <div class="header">
+                <h1><i class="fas fa-cog"></i> Configurações</h1>
+                <p>Ajuste as configurações do sistema</p>
+            </div>
+            
+            <div class="form-panel">
+                <h3 class="form-title">Configurações Gerais</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Moeda</label>
+                    <select class="form-select" id="currency-select">
+                        <option value="BRL">Real Brasileiro (R$)</option>
+                        <option value="USD">Dólar Americano ($)</option>
+                        <option value="EUR">Euro (€)</option>
+                        <option value="GBP">Libra Esterlina (£)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Primeiro dia da semana</label>
+                    <select class="form-select" id="week-start">
+                        <option value="0">Domingo</option>
+                        <option value="1" selected>Segunda-feira</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Notificações</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="notif-transaction" checked>
+                            <span>Notificar ao adicionar transação</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="notif-balance" checked>
+                            <span>Notificar saldo negativo</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="save-settings">
+                    <i class="fas fa-save"></i> Salvar Configurações
+                </button>
+            </div>
+        </section>
+        
+        <!-- Seção Categorias COM UPLOAD DE IMAGEM -->
+        <section id="categories" class="site-section">
+            <div class="header">
+                <h1><i class="fas fa-tags"></i> Categorias</h1>
+                <p>Gerencie suas categorias de ganhos e gastos</p>
+            </div>
+            
+            <div class="main-layout">
+                <div class="transactions-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Categorias Existentes</h3>
+                        <button class="btn btn-primary" id="add-category-btn" style="width: auto; padding: 10px 20px;">
+                            <i class="fas fa-plus"></i> Nova Categoria
+                        </button>
+                    </div>
+                    <div id="categories-list">
+                        <!-- Categorias serão carregadas aqui -->
+                    </div>
+                </div>
+                
+                <div class="form-panel" id="category-form-container" style="display: none;">
+                    <h3 class="form-title" id="category-form-title">Adicionar Nova Categoria</h3>
+                    <form id="category-form">
+                        <div class="form-group">
+                            <label class="form-label">Nome da Categoria</label>
+                            <input type="text" class="form-input" id="category-name" placeholder="Ex: Alimentação" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" id="category-type" required>
+                                <option value="income">Ganho</option>
+                                <option value="expense">Gasto</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Cor</label>
+                            <input type="color" class="form-input" id="category-color" value="#3b82f6" style="height: 50px; padding: 5px;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Ícone (FontAwesome)</label>
+                            <select class="form-select" id="category-icon">
+                                <option value="fas fa-question">Padrão</option>
+                                <option value="fas fa-utensils">Alimentação</option>
+                                <option value="fas fa-car">Transporte</option>
+                                <option value="fas fa-home">Moradia</option>
+                                <option value="fas fa-heart">Saúde</option>
+                                <option value="fas fa-shopping-cart">Compras</option>
+                                <option value="fas fa-film">Lazer</option>
+                                <option value="fas fa-graduation-cap">Educação</option>
+                                <option value="fas fa-money-bill-wave">Salário</option>
+                                <option value="fas fa-laptop-code">Freelance</option>
+                                <option value="fas fa-chart-line">Investimentos</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Upload de imagem -->
+                        <div class="form-group">
+                            <label class="form-label">Ou faça upload de uma imagem</label>
+                            <div class="image-upload-container">
+                                <label class="image-upload-label" for="category-image-upload">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <div>Clique para fazer upload de uma imagem</div>
+                                    <div style="font-size: 0.8rem; margin-top: 5px;">Formatos: JPG, PNG, GIF (Máx. 1MB)</div>
+                                </label>
+                                <input type="file" class="image-upload-input" id="category-image-upload" accept="image/*">
                             </div>
-                            <button onclick="editCategory(${category.id})" style="background: none; border: none; color: var(--accent); cursor: pointer;">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteCategory(${category.id})" style="background: none; border: none; color: var(--danger); cursor: pointer;">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="image-preview" id="category-image-preview">
+                                <img id="category-image-preview-img" src="">
+                                <button type="button" class="remove-image-btn" id="remove-category-image">
+                                    <i class="fas fa-trash"></i> Remover Imagem
+                                </button>
+                            </div>
+                            <input type="hidden" id="category-image-base64">
                         </div>
-                    `;
-            });
+                        
+                        <button type="submit" class="btn btn-primary" id="save-category-btn">
+                            <i class="fas fa-save"></i> Salvar Categoria
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancel-category-btn" style="margin-top: 10px;">
+                            Cancelar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção Saldo Inicial -->
+        <section id="balance" class="site-section">
+            <div class="header">
+                <h1><i class="fas fa-piggy-bank"></i> Saldo Inicial</h1>
+                <p>Configure o saldo inicial das suas contas</p>
+            </div>
             
-            html += `
+            <div class="initial-balance-panel">
+                <div class="initial-balance-header">
+                    <h3 class="initial-balance-title">
+                        <i class="fas fa-piggy-bank"></i> Saldo Inicial da Conta
+                    </h3>
+                    <div class="current-balance-display">
+                        <span style="color: var(--success-dark); margin-right: 10px;">Atual:</span>
+                        <span style="font-weight: 600; font-size: 1.2rem; color: var(--success-dark);" id="current-initial-balance-2">R$ 0,00</span>
                     </div>
                 </div>
-            `;
-        }
-        
-        // Categorias de gastos
-        if (expenseCategories.length > 0) {
-            html += `
-                <div style="margin-bottom: 30px;">
-                    <h4 style="color: var(--danger); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-arrow-down"></i> Gastos
-                    </h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
-            `;
-            
-            expenseCategories.forEach(category => {
-                const iconStyle = category.image 
-                    ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
-                    : `background: ${category.color};`;
                 
-                html += `
-                    <div class="category-item" style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;">
-                        <div style="width: 40px; height: 40px; border-radius: 8px; ${iconStyle}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                            ${!category.image ? `<i class="${category.icon}"></i>` : ''}
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 5px;">${category.name}</div>
-                            <div style="font-size: 0.85rem; color: var(--text-light);">Gasto</div>
-                        </div>
-                        <button onclick="editCategory(${category.id})" style="background: none; border: none; color: var(--accent); cursor: pointer;">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteCategory(${category.id})" style="background: none; border: none; color: var(--danger); cursor: pointer;">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                <div class="initial-balance-form">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="color: var(--success-dark);">Digite o valor que você tem na conta:</label>
+                        <input type="text" class="form-input large-input" id="initial-balance-input-2" placeholder="0,00">
                     </div>
-                `;
+                    <!-- Botão verde para saldo inicial -->
+                    <button type="button" class="btn btn-success" id="update-initial-balance-btn-2">
+                        <i class="fas fa-save"></i> Atualizar Saldo
+                    </button>
+                </div>
+                <p style="margin-top: 15px; color: var(--success-dark); font-size: 0.9rem; text-align: center; opacity: 0.8;">
+                    Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
+                </p>
+            </div>
+        </section>
+
+        <!-- Detalhes do Mês -->
+        <div class="month-details" id="month-details">
+            <div class="month-details-header">
+                <h3 class="month-details-title" id="month-details-title">Detalhes do Mês</h3>
+                <button class="btn btn-primary" onclick="closeMonthDetails()" style="width: auto; padding: 10px 20px;">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+            <div class="transaction-list" id="month-transactions">
+                <!-- Transações do mês serão carregadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================
+        // CONFIGURAÇÃO E DADOS
+        // =========================================
+        let transactions = [];
+        let categories = [];
+        let currentDate = new Date();
+        let currentYear = currentDate.getFullYear();
+        let currentMonth = currentDate.getMonth();
+        let currency = 'BRL';
+        let initialBalance = 0;
+        let currentSection = 'dashboard';
+        let editingCategoryId = null;
+
+        // Categorias padrão
+        const defaultCategories = [
+            // Ganhos
+            { id: 1, name: 'Salário', type: 'income', color: '#10b981', icon: 'fas fa-money-bill-wave' },
+            { id: 2, name: 'Freelance', type: 'income', color: '#3b82f6', icon: 'fas fa-laptop-code' },
+            { id: 3, name: 'Investimentos', type: 'income', color: '#8b5cf6', icon: 'fas fa-chart-line' },
+            { id: 4, name: 'Presente', type: 'income', color: '#f59e0b', icon: 'fas fa-gift' },
+            { id: 5, name: 'Outros Ganhos', type: 'income', color: '#6366f1', icon: 'fas fa-coins' },
+           
+            // Gastos
+            { id: 6, name: 'Alimentação', type: 'expense', color: '#ef4444', icon: 'fas fa-utensils' },
+            { id: 7, name: 'Transporte', type: 'expense', color: '#f97316', icon: 'fas fa-car' },
+            { id: 8, name: 'Moradia', type: 'expense', color: '#14b8a6', icon: 'fas fa-home' },
+            { id: 9, name: 'Lazer', type: 'expense', color: '#8b5cf6', icon: 'fas fa-film' },
+            { id: 10, name: 'Saúde', type: 'expense', color: '#ec4899', icon: 'fas fa-heart' },
+            { id: 11, name: 'Educação', type: 'expense', color: '#06b6d4', icon: 'fas fa-graduation-cap' },
+            { id: 12, name: 'Compras', type: 'expense', color: '#f43f5e', icon: 'fas fa-shopping-cart' },
+            { id: 13, name: 'Outros Gastos', type: 'expense', color: '#64748b', icon: 'fas fa-question-circle' }
+        ];
+
+        // =========================================
+        // FUNÇÕES DE FORMATAÇÃO DE VALOR
+        // =========================================
+        
+        // Formata valor para o formato brasileiro
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: currency
+            }).format(value);
+        }
+
+        // Formata número para string formatada (1.234,56)
+        function formatNumberToCurrency(value) {
+            if (value === null || value === undefined || value === '') return '0,00';
+            
+            let numValue = typeof value === 'number' ? value : parseFloat(value);
+            if (isNaN(numValue)) return '0,00';
+            
+            return numValue.toFixed(2)
+                .replace('.', ',')
+                .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Converte string formatada para número
+        function parseCurrencyToNumber(currencyString) {
+            if (!currencyString) return 0;
+            
+            let cleaned = currencyString.replace(/[^\d,.-]/g, '');
+            
+            if (cleaned.includes(',')) {
+                cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+            }
+            
+            const parsed = parseFloat(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        // Formata input enquanto digita
+        function formatCurrencyInput(event) {
+            let input = event.target;
+            let value = input.value.replace(/\D/g, '');
+            
+            if (value.length === 0) {
+                input.value = '';
+                return;
+            }
+            
+            let numberValue = parseInt(value) / 100;
+            input.value = formatNumberToCurrency(numberValue);
+        }
+
+        // Formata valor ao sair do campo
+        function formatCurrencyOnBlur(event) {
+            let input = event.target;
+            let value = input.value;
+            
+            if (value === '') {
+                input.value = '0,00';
+                return;
+            }
+            
+            let numberValue = parseCurrencyToNumber(value);
+            input.value = formatNumberToCurrency(numberValue);
+        }
+
+        // =========================================
+        // INICIALIZAÇÃO
+        // =========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            initializeApp();
+            setupEventListeners();
+            updateUI();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+        });
+
+        function loadData() {
+            // Carregar transações
+            const savedTransactions = localStorage.getItem('minhas-financas-transactions');
+            if (savedTransactions) {
+                try {
+                    transactions = JSON.parse(savedTransactions);
+                } catch (e) {
+                    console.error('Erro ao carregar transações:', e);
+                    transactions = [];
+                }
+            }
+
+            // Carregar categorias
+            const savedCategories = localStorage.getItem('minhas-financas-categories');
+            if (savedCategories) {
+                try {
+                    categories = JSON.parse(savedCategories);
+                } catch (e) {
+                    console.error('Erro ao carregar categorias:', e);
+                    categories = defaultCategories;
+                }
+            } else {
+                categories = defaultCategories;
+                saveCategories();
+            }
+
+            // Carregar saldo inicial
+            const savedInitialBalance = localStorage.getItem('minhas-financas-initial-balance');
+            if (savedInitialBalance) {
+                try {
+                    initialBalance = parseFloat(savedInitialBalance) || 0;
+                } catch (e) {
+                    console.error('Erro ao carregar saldo inicial:', e);
+                    initialBalance = 0;
+                }
+            }
+
+            // Carregar configurações
+            const savedCurrency = localStorage.getItem('minhas-financas-currency');
+            if (savedCurrency) currency = savedCurrency;
+            
+            const savedWeekStart = localStorage.getItem('minhas-financas-week-start');
+            if (savedWeekStart) document.getElementById('week-start').value = savedWeekStart;
+            
+            const savedNotifTransaction = localStorage.getItem('minhas-financas-notif-transaction');
+            if (savedNotifTransaction !== null) {
+                document.getElementById('notif-transaction').checked = savedNotifTransaction === 'true';
+            }
+            
+            const savedNotifBalance = localStorage.getItem('minhas-financas-notif-balance');
+            if (savedNotifBalance !== null) {
+                document.getElementById('notif-balance').checked = savedNotifBalance === 'true';
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('minhas-financas-transactions', JSON.stringify(transactions));
+            localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
+            localStorage.setItem('minhas-financas-initial-balance', initialBalance.toString());
+        }
+
+        function saveCategories() {
+            localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
+        }
+
+        function initializeApp() {
+            // Configurar data atual no formulário
+            document.getElementById('transaction-form').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transaction-date').value = today;
+           
+            // Preencher campo de saldo inicial
+            document.getElementById('initial-balance-input').value = formatNumberToCurrency(initialBalance);
+            document.getElementById('initial-balance-input-2').value = formatNumberToCurrency(initialBalance);
+            document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
+            document.getElementById('current-initial-balance-2').textContent = formatCurrency(initialBalance);
+           
+            // Inicializar selects de categoria
+            updateCategorySelects();
+           
+            // Configurar controles de data
+            updateDateDisplay();
+            
+            // Configurar ano atual nos filtros
+            document.getElementById('year-selector-input').value = currentYear;
+            document.getElementById('all-filter-year').value = currentYear;
+            document.getElementById('report-year').value = currentYear;
+            
+            // Configurar moeda
+            if (currency) {
+                document.getElementById('currency-select').value = currency;
+            }
+            
+            // Atualizar relatórios
+            updateReports();
+        }
+
+        function setupEventListeners() {
+            // Menu hambúrguer
+            document.getElementById('menu-toggle').addEventListener('click', toggleMenu);
+            document.getElementById('close-menu').addEventListener('click', toggleMenu);
+            document.getElementById('menu-overlay').addEventListener('click', toggleMenu);
+            
+            // Itens do menu
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    if (section) {
+                        switchSection(section);
+                        toggleMenu();
+                    }
+                });
+            });
+
+            // Formulário de transação
+            document.getElementById('transaction-form').addEventListener('submit', addTransaction);
+           
+            // Formatação automática do campo de valor
+            const amountInput = document.getElementById('amount');
+            amountInput.addEventListener('input', formatCurrencyInput);
+            amountInput.addEventListener('blur', formatCurrencyOnBlur);
+            
+            // Formatação do campo de saldo inicial
+            const initialBalanceInput = document.getElementById('initial-balance-input');
+            initialBalanceInput.addEventListener('input', formatCurrencyInput);
+            initialBalanceInput.addEventListener('blur', formatCurrencyOnBlur);
+            
+            const initialBalanceInput2 = document.getElementById('initial-balance-input-2');
+            initialBalanceInput2.addEventListener('input', formatCurrencyInput);
+            initialBalanceInput2.addEventListener('blur', formatCurrencyOnBlur);
+            
+            // Atualizar saldo inicial
+            document.getElementById('update-initial-balance-btn').addEventListener('click', updateInitialBalance);
+            document.getElementById('update-initial-balance-btn-2').addEventListener('click', updateInitialBalance);
+            
+            // Seletor de tipo
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateCategorySelect(this.getAttribute('data-type'));
+                });
+            });
+
+            // Controles de data (CALENDÁRIO INFINITO)
+            document.getElementById('prev-year').addEventListener('click', () => changeYear(-1));
+            document.getElementById('next-year').addEventListener('click', () => changeYear(1));
+            document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
+            document.getElementById('today-btn').addEventListener('click', goToToday);
+
+            // Filtros de transações recentes
+            document.getElementById('recent-filter-type').addEventListener('change', updateRecentTransactions);
+            document.getElementById('recent-filter-category').addEventListener('change', updateRecentTransactions);
+            document.getElementById('recent-filter-period').addEventListener('change', updateRecentTransactions);
+            
+            // Filtros de todas as transações (CALENDÁRIO INFINITO)
+            document.getElementById('all-filter-type').addEventListener('change', updateAllTransactions);
+            document.getElementById('all-filter-category').addEventListener('change', updateAllTransactions);
+            document.getElementById('all-filter-year').addEventListener('input', updateAllTransactions);
+            document.getElementById('all-filter-month').addEventListener('change', updateAllTransactions);
+            
+            // Histórico (CALENDÁRIO INFINITO)
+            document.getElementById('load-year-history').addEventListener('click', function() {
+                const year = parseInt(document.getElementById('year-selector-input').value);
+                if (year && year >= 2000 && year <= 2100) {
+                    updateYearHistory(year);
+                } else {
+                    showNotification('Por favor, digite um ano válido (2000-2100)', 'error');
+                }
             });
             
-            html += `
-                    </div>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = html;
-    }
-
-    function showCategoryForm() {
-        document.getElementById('category-form-container').style.display = 'block';
-        document.getElementById('category-form').reset();
-        document.getElementById('category-color').value = '#3b82f6';
-        document.getElementById('category-form-title').textContent = 'Adicionar Nova Categoria';
-        document.getElementById('save-category-btn').innerHTML = '<i class="fas fa-save"></i> Salvar Categoria';
-        document.getElementById('category-image-preview').style.display = 'none';
-        document.getElementById('category-image-base64').value = '';
-        editingCategoryId = null;
-    }
-
-    function hideCategoryForm() {
-        document.getElementById('category-form-container').style.display = 'none';
-        editingCategoryId = null;
-    }
-
-    function handleCategoryImageUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        // Verificar tamanho do arquivo (máximo 1MB)
-        if (file.size > 1024 * 1024) {
-            showNotification('A imagem deve ter no máximo 1MB', 'error');
-            return;
-        }
-        
-        // Verificar tipo do arquivo
-        if (!file.type.match('image.*')) {
-            showNotification('Por favor, selecione uma imagem válida', 'error');
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imagePreview = document.getElementById('category-image-preview');
-            const previewImg = document.getElementById('category-image-preview-img');
-            const base64Input = document.getElementById('category-image-base64');
+            // Relatórios (CALENDÁRIO INFINITO)
+            document.getElementById('generate-report').addEventListener('click', generateReport);
             
-            previewImg.src = e.target.result;
-            base64Input.value = e.target.result;
-            imagePreview.style.display = 'block';
-        };
-        
-        reader.readAsDataURL(file);
-    }
-
-    function removeCategoryImage() {
-        document.getElementById('category-image-preview').style.display = 'none';
-        document.getElementById('category-image-base64').value = '';
-        document.getElementById('category-image-upload').value = '';
-    }
-
-    function saveCategory(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('category-name').value.trim();
-        const type = document.getElementById('category-type').value;
-        const color = document.getElementById('category-color').value;
-        const icon = document.getElementById('category-icon').value;
-        const imageBase64 = document.getElementById('category-image-base64').value;
-        
-        if (!name) {
-            showNotification('Por favor, digite um nome para a categoria!', 'error');
-            return;
-        }
-        
-        let categoryData = {
-            name: name,
-            type: type,
-            color: color,
-            icon: icon
-        };
-        
-        // Adicionar imagem se existir
-        if (imageBase64) {
-            categoryData.image = imageBase64;
-        }
-        
-        if (editingCategoryId) {
-            // Atualizar categoria existente
-            const index = categories.findIndex(c => c.id === editingCategoryId);
-            if (index !== -1) {
-                categories[index] = {
-                    ...categories[index],
-                    ...categoryData
-                };
-            }
-            showNotification('Categoria atualizada com sucesso!');
-        } else {
-            // Adicionar nova categoria
-            const newCategory = {
-                id: Date.now(),
-                ...categoryData
-            };
-            categories.push(newCategory);
-            showNotification('Categoria salva com sucesso!');
-        }
-        
-        saveCategories();
-        updateCategoriesList();
-        updateCategorySelects();
-        hideCategoryForm();
-    }
-
-    function editCategory(id) {
-        const category = categories.find(c => c.id === id);
-        if (!category) return;
-        
-        showCategoryForm();
-        editingCategoryId = id;
-        
-        document.getElementById('category-form-title').textContent = 'Editar Categoria';
-        document.getElementById('save-category-btn').innerHTML = '<i class="fas fa-save"></i> Atualizar Categoria';
-        document.getElementById('category-name').value = category.name;
-        document.getElementById('category-type').value = category.type;
-        document.getElementById('category-color').value = category.color;
-        document.getElementById('category-icon').value = category.icon || 'fas fa-question';
-        
-        // Configurar imagem se existir
-        if (category.image) {
-            const imagePreview = document.getElementById('category-image-preview');
-            const previewImg = document.getElementById('category-image-preview-img');
-            const base64Input = document.getElementById('category-image-base64');
+            // Configurações
+            document.getElementById('save-settings').addEventListener('click', saveSettings);
             
-            previewImg.src = category.image;
-            base64Input.value = category.image;
-            imagePreview.style.display = 'block';
-        }
-    }
-
-    function deleteCategory(id) {
-        if (confirm('Tem certeza que deseja excluir esta categoria? As transações associadas não serão excluídas.')) {
-            const initialLength = categories.length;
-            categories = categories.filter(c => c.id !== id);
+            // Categorias
+            document.getElementById('add-category-btn').addEventListener('click', showCategoryForm);
+            document.getElementById('cancel-category-btn').addEventListener('click', hideCategoryForm);
+            document.getElementById('category-form').addEventListener('submit', saveCategory);
             
-            if (categories.length < initialLength) {
+            // Upload de imagem para categorias
+            document.getElementById('category-image-upload').addEventListener('change', handleCategoryImageUpload);
+            document.getElementById('remove-category-image').addEventListener('click', removeCategoryImage);
+            
+            // Carregar categorias padrão se não houver nenhuma
+            if (categories.length === 0) {
+                categories = [...defaultCategories];
                 saveCategories();
-                updateCategoriesList();
-                updateCategorySelects();
-                showNotification('Categoria excluída!');
-            } else {
-                showNotification('Categoria não encontrada!', 'error');
             }
         }
-    }
 
-    // =========================================
-    // CONFIGURAÇÕES
-    // =========================================
-    function saveSettings() {
-        const currency = document.getElementById('currency-select').value;
-        const weekStart = document.getElementById('week-start').value;
-        const notifTransaction = document.getElementById('notif-transaction').checked;
-        const notifBalance = document.getElementById('notif-balance').checked;
-        
-        // Aqui você salvaria essas configurações no localStorage
-        localStorage.setItem('minhas-financas-currency', currency);
-        localStorage.setItem('minhas-financas-week-start', weekStart);
-        localStorage.setItem('minhas-financas-notif-transaction', notifTransaction);
-        localStorage.setItem('minhas-financas-notif-balance', notifBalance);
-        
-        showNotification('Configurações salvas com sucesso!');
-    }
+        // =========================================
+        // MENU HAMBÚRGUER
+        // =========================================
+        function toggleMenu() {
+            const menuContainer = document.getElementById('menu-container');
+            const menuOverlay = document.getElementById('menu-overlay');
+            
+            menuContainer.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        }
 
-    // =========================================
-    // HISTÓRICO DO ANO COM CALENDÁRIO INFINITO
-    // =========================================
-    function updateYearHistory(year = null) {
-        const selectedYear = year || parseInt(document.getElementById('year-selector-input').value) || currentYear;
-        const container = document.getElementById('year-history');
-       
-        document.getElementById('selected-year').textContent = selectedYear;
-       
-        let yearIncome = 0;
-        let yearExpense = 0;
-       
-        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-       
-        let html = '';
-       
-        for (let month = 0; month < 12; month++) {
-            const monthTransactions = getMonthTransactions(selectedYear, month);
+        function switchSection(sectionId) {
+            // Esconder todas as seções
+            document.querySelectorAll('.site-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar a seção selecionada
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                
+                // Atualizar menu ativo
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-section') === sectionId) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Atualizar a seção atual
+                currentSection = sectionId;
+                
+                // Atualizar o conteúdo da seção se necessário
+                if (sectionId === 'transactions') {
+                    updateAllTransactions();
+                } else if (sectionId === 'reports') {
+                    updateReports();
+                } else if (sectionId === 'categories') {
+                    updateCategoriesList();
+                } else if (sectionId === 'history') {
+                    const currentYear = new Date().getFullYear();
+                    document.getElementById('year-selector-input').value = currentYear;
+                    updateYearHistory(currentYear);
+                } else if (sectionId === 'balance') {
+                    document.getElementById('initial-balance-input-2').value = formatNumberToCurrency(initialBalance);
+                }
+            }
+        }
+
+        // =========================================
+        // DATA E HORA ATUAL
+        // =========================================
+        function updateCurrentTime() {
+            const now = new Date();
            
-            let income = 0;
-            let expense = 0;
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: 'America/Sao_Paulo'
+            };
+            const dateFormatter = new Intl.DateTimeFormat('pt-BR', dateOptions);
+            const dateString = dateFormatter.format(now);
+           
+            const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'America/Sao_Paulo'
+            };
+            const timeFormatter = new Intl.DateTimeFormat('pt-BR', timeOptions);
+            const timeString = timeFormatter.format(now);
+           
+            document.getElementById('current-date-display').textContent =
+                dateString.charAt(0).toUpperCase() + dateString.slice(1);
+            document.getElementById('current-time-display').textContent = timeString;
+        }
+
+        // =========================================
+        // FUNÇÕES PRINCIPAIS
+        // =========================================
+        function updateUI() {
+            updateDashboard();
+            updateRecentTransactions();
+            updateYearHistory(currentYear);
+            updateTotalBalanceDisplay();
+            updateAllTransactions();
+        }
+
+        // =========================================
+        // SALDO INICIAL - FUNÇÃO MODIFICADA
+        // =========================================
+        function updateInitialBalance() {
+            let input;
+            if (currentSection === 'balance') {
+                input = document.getElementById('initial-balance-input-2');
+            } else {
+                input = document.getElementById('initial-balance-input');
+            }
+            
+            const value = parseCurrencyToNumber(input.value);
+            
+            if (isNaN(value) || value < 0) {
+                showNotification('Por favor, digite um valor válido!', 'error');
+                return;
+            }
+            
+            initialBalance = value;
+            saveData();
+            updateTotalBalanceDisplay();
+            document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
+            document.getElementById('current-initial-balance-2').textContent = formatCurrency(initialBalance);
+            showNotification('Saldo inicial atualizado com sucesso!');
+        }
+
+        // =========================================
+        // SALDO TOTAL - FUNÇÃO MODIFICADA PARA ABATER GASTOS
+        // =========================================
+        function updateTotalBalanceDisplay() {
+            // Calcular totais de TODAS as transações (não apenas do mês)
+            let totalIncomeAll = 0;
+            let totalExpenseAll = 0;
+            
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncomeAll += transaction.amount;
+                } else {
+                    totalExpenseAll += transaction.amount;
+                }
+            });
+            
+            // Calcular saldo total: saldo inicial + todos os ganhos - todos os gastos
+            const totalBalance = initialBalance + totalIncomeAll - totalExpenseAll;
+            
+            // Atualizar display no header
+            const balanceElement = document.getElementById('total-balance-display');
+            const headerBalance = document.getElementById('header-balance');
+            
+            balanceElement.textContent = formatCurrency(totalBalance);
+            
+            // Atualizar cores do header baseado no saldo
+            if (totalBalance > 0) {
+                headerBalance.className = 'header-balance positive';
+            } else if (totalBalance < 0) {
+                headerBalance.className = 'header-balance negative';
+            } else {
+                headerBalance.className = 'header-balance';
+            }
+            
+            // Atualizar também o dashboard (para mostrar saldo do mês atualizado)
+            updateSummary();
+        }
+
+        // =========================================
+        // TRANSAÇÕES - FUNÇÃO MODIFICADA PARA ATUALIZAR SALDO TOTAL
+        // =========================================
+        function addTransaction(e) {
+            e.preventDefault();
+           
+            const type = document.querySelector('.type-btn.active').getAttribute('data-type');
+            const description = document.getElementById('description').value.trim();
+            const amount = parseCurrencyToNumber(document.getElementById('amount').value);
+            const categoryId = parseInt(document.getElementById('category').value);
+            const dateInput = document.getElementById('transaction-date').value;
+           
+            if (!description || amount <= 0 || !categoryId) {
+                showNotification('Por favor, preencha todos os campos corretamente!', 'error');
+                return;
+            }
+           
+            const transaction = {
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                type: type,
+                description: description,
+                amount: amount,
+                categoryId: categoryId,
+                date: dateInput || new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            };
+           
+            transactions.push(transaction);
+            saveData();
+            
+            // ATUALIZAR O SALDO TOTAL IMEDIATAMENTE
+            updateTotalBalanceDisplay();
+            updateRecentTransactions();
+            updateAllTransactions();
+            updateYearHistory(currentYear);
+            updateReports();
+            
+            document.getElementById('transaction-form').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transaction-date').value = today;
+            document.getElementById('amount').value = '';
+           
+            showNotification('Transação adicionada com sucesso!');
+        }
+
+        function editTransaction(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) {
+                console.error('Transação não encontrada:', id);
+                return;
+            }
+            
+            const newDescription = prompt('Nova descrição:', transaction.description);
+            if (newDescription === null || newDescription.trim() === '') return;
+            
+            const currentValue = formatNumberToCurrency(transaction.amount);
+            const newAmount = prompt('Novo valor (R$):', currentValue);
+            if (newAmount === null) return;
+            
+            const parsedAmount = parseCurrencyToNumber(newAmount);
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                showNotification('Valor inválido!', 'error');
+                return;
+            }
+            
+            transaction.description = newDescription.trim();
+            transaction.amount = parsedAmount;
+            saveData();
+            updateTotalBalanceDisplay(); // Atualizar saldo total
+            updateUI();
+           
+            showNotification('Transação atualizada!');
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Tem certeza que deseja excluir esta transação?')) {
+                const initialLength = transactions.length;
+                transactions = transactions.filter(t => t.id !== id);
+                
+                if (transactions.length < initialLength) {
+                    saveData();
+                    updateTotalBalanceDisplay(); // Atualizar saldo total
+                    updateUI();
+                    showNotification('Transação excluída!');
+                } else {
+                    showNotification('Transação não encontrada!', 'error');
+                }
+            }
+        }
+
+        // =========================================
+        // DASHBOARD - FUNÇÃO MODIFICADA
+        // =========================================
+        function updateDashboard() {
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const monthTransactions = getMonthTransactions(currentYear, currentMonth);
+           
+            let totalIncome = 0;
+            let totalExpense = 0;
            
             monthTransactions.forEach(transaction => {
                 if (transaction.type === 'income') {
-                    income += transaction.amount;
-                    yearIncome += transaction.amount;
+                    totalIncome += transaction.amount;
                 } else {
-                    expense += transaction.amount;
-                    yearExpense += transaction.amount;
+                    totalExpense += transaction.amount;
                 }
             });
            
-            const balance = income - expense;
-            const isCurrent = selectedYear === currentYear && month === currentMonth;
+            const balance = totalIncome - totalExpense;
            
-            html += `
-                <div class="year-card ${isCurrent ? 'current' : ''}" onclick="showMonthDetails(${selectedYear}, ${month})">
-                    <div class="year-title">${monthNames[month]} ${selectedYear}</div>
-                    <div class="year-stats">
-                        <div class="year-stat">
-                            <span class="year-label">Ganhos:</span>
-                            <span class="year-value text-success">${formatCurrency(income)}</span>
-                        </div>
-                        <div class="year-stat">
-                            <span class="year-label">Gastos:</span>
-                            <span class="year-value text-danger">${formatCurrency(expense)}</span>
-                        </div>
-                        <div class="year-stat">
-                            <span class="year-label">Saldo:</span>
-                            <span class="year-value ${balance >= 0 ? 'text-success' : 'text-danger'}">
-                                ${formatCurrency(balance)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `;
+            document.getElementById('total-income').textContent = formatCurrency(totalIncome);
+            document.getElementById('total-expense').textContent = formatCurrency(totalExpense);
+            document.getElementById('total-balance').textContent = formatCurrency(balance);
         }
-       
-        const yearBalance = yearIncome - yearExpense;
-        document.getElementById('year-total-income').textContent = formatCurrency(yearIncome);
-        document.getElementById('year-total-expense').textContent = formatCurrency(yearExpense);
-        document.getElementById('year-total-balance').textContent = formatCurrency(yearBalance);
-       
-        container.innerHTML = html || `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <div class="empty-icon">
-                    <i class="fas fa-history"></i>
-                </div>
-                <p>Nenhuma transação em ${selectedYear}</p>
-            </div>
-        `;
-    }
 
-    function showMonthDetails(year, month) {
-        const monthNames = [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-        ];
-       
-        document.getElementById('month-details-title').textContent =
-            `Detalhes de ${monthNames[month]} ${year}`;
-       
-        const monthTransactions = getMonthTransactions(year, month);
-        const container = document.getElementById('month-transactions');
-       
-        monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-       
-        if (monthTransactions.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-exchange-alt"></i>
+        function updateRecentTransactions() {
+            const container = document.getElementById('recent-transactions');
+            const typeFilter = document.getElementById('recent-filter-type').value;
+            const categoryFilter = document.getElementById('recent-filter-category').value;
+            const periodFilter = document.getElementById('recent-filter-period').value;
+           
+            let filtered = [...transactions];
+           
+            const now = new Date();
+            if (periodFilter === 'current') {
+                filtered = getMonthTransactions(currentYear, currentMonth);
+            } else if (periodFilter === 'last30') {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                filtered = filtered.filter(t => new Date(t.date) >= thirtyDaysAgo);
+            } else if (periodFilter === 'last7') {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                filtered = filtered.filter(t => new Date(t.date) >= sevenDaysAgo);
+            }
+           
+            if (typeFilter) {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+           
+            if (categoryFilter) {
+                filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
+            }
+           
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            filtered = filtered.slice(0, 20);
+           
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <p>Nenhuma transação encontrada</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Adicione sua primeira transação usando o formulário</p>
                     </div>
-                    <p>Nenhuma transação em ${monthNames[month]} ${year}</p>
-                </div>
-            `;
-        } else {
-            container.innerHTML = monthTransactions.map(transaction => {
+                `;
+                return;
+            }
+           
+            container.innerHTML = filtered.map(transaction => {
                 const category = categories.find(c => c.id === transaction.categoryId);
                 const date = new Date(transaction.date);
                 const isToday = date.toDateString() === new Date().toDateString();
@@ -1250,164 +2267,803 @@
                 `;
             }).join('');
         }
-       
-        document.getElementById('month-details').style.display = 'block';
-        document.getElementById('month-details').scrollIntoView({ behavior: 'smooth' });
-    }
 
-    function closeMonthDetails() {
-        document.getElementById('month-details').style.display = 'none';
-    }
-
-    // =========================================
-    // CATEGORIAS E FILTROS
-    // =========================================
-    function updateCategorySelect(type) {
-        const select = document.getElementById('category');
-        select.innerHTML = '';
-       
-        const filteredCategories = categories.filter(c => c.type === type);
-       
-        if (filteredCategories.length === 0) {
-            const option = document.createElement('option');
-            option.value = '';
-            option.textContent = 'Nenhuma categoria disponível';
-            select.appendChild(option);
-            return;
-        }
-       
-        filteredCategories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.name;
-            select.appendChild(option);
-        });
-    }
-
-    function updateCategorySelects() {
-        // Atualizar filtro de categorias para transações recentes
-        const recentFilterSelect = document.getElementById('recent-filter-category');
-        recentFilterSelect.innerHTML = '<option value="">Todas categorias</option>';
-       
-        // Atualizar filtro de categorias para todas as transações
-        const allFilterSelect = document.getElementById('all-filter-category');
-        allFilterSelect.innerHTML = '<option value="">Todas categorias</option>';
-       
-        categories.forEach(category => {
-            const option1 = document.createElement('option');
-            option1.value = category.id;
-            option1.textContent = `${category.type === 'income' ? '💰 ' : '💸 '}${category.name}`;
-            recentFilterSelect.appendChild(option1);
-            
-            const option2 = document.createElement('option');
-            option2.value = category.id;
-            option2.textContent = `${category.type === 'income' ? '💰 ' : '💸 '}${category.name}`;
-            allFilterSelect.appendChild(option2);
-        });
-       
-        updateCategorySelect('income');
-    }
-
-    // =========================================
-    // CONTROLES DE DATA COM CALENDÁRIO INFINITO
-    // =========================================
-    function changeYear(delta) {
-        currentYear += delta;
-        updateDateDisplay();
-        updateDashboard();
-        updateYearHistory(currentYear);
-    }
-
-    function changeMonth(delta) {
-        currentMonth += delta;
-       
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        } else if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        }
-       
-        updateDateDisplay();
-        updateDashboard();
-    }
-
-    function goToToday() {
-        const now = new Date();
-        currentYear = now.getFullYear();
-        currentMonth = now.getMonth();
-        updateDateDisplay();
-        updateDashboard();
-        updateYearHistory(currentYear);
-        showNotification('Voltou para o mês atual');
-    }
-
-    function updateDateDisplay() {
-        const monthNames = [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-        ];
-       
-        document.getElementById('current-month-year').textContent =
-            `${monthNames[currentMonth]} ${currentYear}`;
-       
-        document.getElementById('current-year').textContent = currentYear;
-        document.getElementById('current-month').textContent = monthNames[currentMonth];
-    }
-
-    // =========================================
-    // UTILITÁRIOS
-    // =========================================
-    function getMonthTransactions(year, month) {
-        return transactions.filter(t => {
-            const date = new Date(t.date);
-            return date.getFullYear() === year && date.getMonth() === month;
-        });
-    }
-
-    function formatDate(dateString) {
-        try {
-            return new Date(dateString).toLocaleDateString('pt-BR');
-        } catch (e) {
-            return dateString;
-        }
-    }
-
-    function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            padding: 20px 25px;
-            background: ${type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--success)'};
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            max-width: 400px;
-            font-weight: 500;
-        `;
-       
-        notification.innerHTML = `
-            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'check-circle'}" style="font-size: 1.5rem;"></i>
-            <span>${message}</span>
-        `;
-       
-        document.body.appendChild(notification);
-       
-        setTimeout(() => {
-            notification.style.animation = 'fadeIn 0.3s ease reverse';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
+        // =========================================
+        // TODAS AS TRANSAÇÕES COM CALENDÁRIO INFINITO
+        // =========================================
+        function updateAllTransactions() {
+            const container = document.getElementById('all-transactions');
+            const typeFilter = document.getElementById('all-filter-type').value;
+            const categoryFilter = document.getElementById('all-filter-category').value;
+            const yearFilter = document.getElementById('all-filter-year').value;
+            const monthFilter = document.getElementById('all-filter-month').value;
+           
+            let filtered = [...transactions];
+           
+            // Filtrar por tipo
+            if (typeFilter) {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+           
+            // Filtrar por categoria
+            if (categoryFilter) {
+                filtered = filtered.filter(t => t.categoryId === parseInt(categoryFilter));
+            }
+           
+            // Filtrar por ano (CALENDÁRIO INFINITO)
+            if (yearFilter) {
+                const year = parseInt(yearFilter);
+                if (!isNaN(year) && year >= 2000 && year <= 2100) {
+                    filtered = filtered.filter(t => {
+                        const date = new Date(t.date);
+                        return date.getFullYear() === year;
+                    });
                 }
-            }, 300);
-        }, 3000);
-    }
-</script>
+            }
+           
+            // Filtrar por mês
+            if (monthFilter !== '') {
+                filtered = filtered.filter(t => {
+                    const date = new Date(t.date);
+                    return date.getMonth() === parseInt(monthFilter);
+                });
+            }
+           
+            // Ordenar por data (mais recente primeiro)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+           
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <p>Nenhuma transação encontrada</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Tente ajustar os filtros</p>
+                    </div>
+                `;
+                return;
+            }
+           
+            container.innerHTML = filtered.map(transaction => {
+                const category = categories.find(c => c.id === transaction.categoryId);
+                const date = new Date(transaction.date);
+                const isToday = date.toDateString() === new Date().toDateString();
+               
+                // Verificar se a categoria tem imagem
+                const iconStyle = category?.image 
+                    ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                    : `background: ${category?.color || '#3b82f6'};`;
+               
+                return `
+                    <div class="transaction-item ${transaction.type}">
+                        <div class="transaction-icon" style="${iconStyle}">
+                            ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
+                        </div>
+                        <div class="transaction-info">
+                            <div class="transaction-name">${transaction.description}</div>
+                            <div class="transaction-meta">
+                                <span>${formatDate(transaction.date)} ${isToday ? '<span class="badge badge-success">Hoje</span>' : ''}</span>
+                                <span>${category?.name || 'Sem categoria'}</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                            ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-left: 10px;">
+                            <button onclick="editTransaction(${transaction.id})" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteTransaction(${transaction.id})" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================
+        // RELATÓRIOS MELHORADOS
+        // =========================================
+        function updateReports() {
+            // Calcular totais
+            let totalIncome = 0;
+            let totalExpense = 0;
+            
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    totalIncome += transaction.amount;
+                } else {
+                    totalExpense += transaction.amount;
+                }
+            });
+            
+            // Calcular taxa de economia
+            let savingsRate = 0;
+            if (totalIncome > 0) {
+                savingsRate = ((totalIncome - totalExpense) / totalIncome) * 100;
+            }
+            
+            // Atualizar valores nos cards
+            document.getElementById('report-income').textContent = formatCurrency(totalIncome);
+            document.getElementById('report-expense').textContent = formatCurrency(totalExpense);
+            document.getElementById('report-savings').textContent = savingsRate.toFixed(1) + '%';
+        }
+
+        function generateReport() {
+            const yearInput = document.getElementById('report-year').value;
+            const monthSelect = document.getElementById('report-month').value;
+            const typeSelect = document.getElementById('report-type').value;
+            
+            // Validar ano (CALENDÁRIO INFINITO)
+            const year = parseInt(yearInput);
+            if (!year || year < 2000 || year > 2100) {
+                showNotification('Por favor, digite um ano válido (2000-2100)', 'error');
+                return;
+            }
+            
+            let filtered = transactions.filter(t => {
+                const date = new Date(t.date);
+                const yearMatch = date.getFullYear() === year;
+                const monthMatch = monthSelect === '' || date.getMonth() === parseInt(monthSelect);
+                const typeMatch = t.type === typeSelect;
+                
+                return yearMatch && monthMatch && typeMatch;
+            });
+            
+            // Calcular totais por categoria
+            const categoryTotals = {};
+            filtered.forEach(transaction => {
+                const category = categories.find(c => c.id === transaction.categoryId);
+                const categoryName = category ? category.name : 'Sem categoria';
+                
+                if (!categoryTotals[categoryName]) {
+                    categoryTotals[categoryName] = 0;
+                }
+                categoryTotals[categoryName] += transaction.amount;
+            });
+            
+            // Ordenar categorias por valor
+            const sortedCategories = Object.entries(categoryTotals)
+                .sort((a, b) => b[1] - a[1]);
+            
+            // Gerar HTML do relatório
+            const reportContainer = document.getElementById('report-results');
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            
+            const monthName = monthSelect === '' ? 'Todos os meses' : monthNames[parseInt(monthSelect)];
+            const typeName = typeSelect === 'income' ? 'Ganhos' : 'Gastos';
+            
+            let html = `
+                <h3 style="color: var(--primary); margin-bottom: 20px;">
+                    Relatório de ${typeName} - ${monthName} de ${year}
+                </h3>
+                <p style="color: var(--text-light); margin-bottom: 30px;">
+                    Total: <strong>${formatCurrency(filtered.reduce((sum, t) => sum + t.amount, 0))}</strong> | 
+                    Transações: <strong>${filtered.length}</strong>
+                </p>
+            `;
+            
+            if (sortedCategories.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <p>Nenhuma transação encontrada</p>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="background: var(--bg); border-radius: var(--radius); padding: 20px;">
+                        <h4 style="color: var(--text); margin-bottom: 15px;">Distribuição por Categoria</h4>
+                `;
+                
+                sortedCategories.forEach(([categoryName, total]) => {
+                    const percentage = (total / filtered.reduce((sum, t) => sum + t.amount, 0)) * 100;
+                    const category = categories.find(c => c.name === categoryName);
+                    const color = category ? category.color : '#3b82f6';
+                    
+                    html += `
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-weight: 500;">${categoryName}</span>
+                                <span style="font-weight: 600;">${formatCurrency(total)} (${percentage.toFixed(1)}%)</span>
+                            </div>
+                            <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: ${color}; width: ${percentage}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            reportContainer.innerHTML = html;
+            showNotification('Relatório gerado com sucesso!');
+        }
+
+        // =========================================
+        // CATEGORIAS COM UPLOAD DE IMAGEM
+        // =========================================
+        function updateCategoriesList() {
+            const container = document.getElementById('categories-list');
+            
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <p>Nenhuma categoria cadastrada</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Separar categorias por tipo
+            const incomeCategories = categories.filter(c => c.type === 'income');
+            const expenseCategories = categories.filter(c => c.type === 'expense');
+            
+            let html = '';
+            
+            // Categorias de ganhos
+            if (incomeCategories.length > 0) {
+                html += `
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: var(--success); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-arrow-up"></i> Ganhos
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                `;
+                
+                incomeCategories.forEach(category => {
+                    const iconStyle = category.image 
+                        ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                        : `background: ${category.color};`;
+                    
+                    html += `
+                        <div class="category-item" style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; ${iconStyle}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                                ${!category.image ? `<i class="${category.icon}"></i>` : ''}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 5px;">${category.name}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">Ganho</div>
+                            </div>
+                            <button onclick="editCategory(${category.id})" style="background: none; border: none; color: var(--accent); cursor: pointer;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteCategory(${category.id})" style="background: none; border: none; color: var(--danger); cursor: pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Categorias de gastos
+            if (expenseCategories.length > 0) {
+                html += `
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: var(--danger); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-arrow-down"></i> Gastos
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                `;
+                
+                expenseCategories.forEach(category => {
+                    const iconStyle = category.image 
+                        ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                        : `background: ${category.color};`;
+                    
+                    html += `
+                        <div class="category-item" style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; ${iconStyle}; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                                ${!category.image ? `<i class="${category.icon}"></i>` : ''}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 5px;">${category.name}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">Gasto</div>
+                            </div>
+                            <button onclick="editCategory(${category.id})" style="background: none; border: none; color: var(--accent); cursor: pointer;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteCategory(${category.id})" style="background: none; border: none; color: var(--danger); cursor: pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function showCategoryForm() {
+            document.getElementById('category-form-container').style.display = 'block';
+            document.getElementById('category-form').reset();
+            document.getElementById('category-color').value = '#3b82f6';
+            document.getElementById('category-form-title').textContent = 'Adicionar Nova Categoria';
+            document.getElementById('save-category-btn').innerHTML = '<i class="fas fa-save"></i> Salvar Categoria';
+            document.getElementById('category-image-preview').style.display = 'none';
+            document.getElementById('category-image-base64').value = '';
+            editingCategoryId = null;
+        }
+
+        function hideCategoryForm() {
+            document.getElementById('category-form-container').style.display = 'none';
+            editingCategoryId = null;
+        }
+
+        function handleCategoryImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Verificar tamanho do arquivo (máximo 1MB)
+            if (file.size > 1024 * 1024) {
+                showNotification('A imagem deve ter no máximo 1MB', 'error');
+                return;
+            }
+            
+            // Verificar tipo do arquivo
+            if (!file.type.match('image.*')) {
+                showNotification('Por favor, selecione uma imagem válida', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById('category-image-preview');
+                const previewImg = document.getElementById('category-image-preview-img');
+                const base64Input = document.getElementById('category-image-base64');
+                
+                previewImg.src = e.target.result;
+                base64Input.value = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function removeCategoryImage() {
+            document.getElementById('category-image-preview').style.display = 'none';
+            document.getElementById('category-image-base64').value = '';
+            document.getElementById('category-image-upload').value = '';
+        }
+
+        function saveCategory(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('category-name').value.trim();
+            const type = document.getElementById('category-type').value;
+            const color = document.getElementById('category-color').value;
+            const icon = document.getElementById('category-icon').value;
+            const imageBase64 = document.getElementById('category-image-base64').value;
+            
+            if (!name) {
+                showNotification('Por favor, digite um nome para a categoria!', 'error');
+                return;
+            }
+            
+            let categoryData = {
+                name: name,
+                type: type,
+                color: color,
+                icon: icon
+            };
+            
+            // Adicionar imagem se existir
+            if (imageBase64) {
+                categoryData.image = imageBase64;
+            }
+            
+            if (editingCategoryId) {
+                // Atualizar categoria existente
+                const index = categories.findIndex(c => c.id === editingCategoryId);
+                if (index !== -1) {
+                    categories[index] = {
+                        ...categories[index],
+                        ...categoryData
+                    };
+                }
+                showNotification('Categoria atualizada com sucesso!');
+            } else {
+                // Adicionar nova categoria
+                const newCategory = {
+                    id: Date.now(),
+                    ...categoryData
+                };
+                categories.push(newCategory);
+                showNotification('Categoria salva com sucesso!');
+            }
+            
+            saveCategories();
+            updateCategoriesList();
+            updateCategorySelects();
+            hideCategoryForm();
+        }
+
+        function editCategory(id) {
+            const category = categories.find(c => c.id === id);
+            if (!category) return;
+            
+            showCategoryForm();
+            editingCategoryId = id;
+            
+            document.getElementById('category-form-title').textContent = 'Editar Categoria';
+            document.getElementById('save-category-btn').innerHTML = '<i class="fas fa-save"></i> Atualizar Categoria';
+            document.getElementById('category-name').value = category.name;
+            document.getElementById('category-type').value = category.type;
+            document.getElementById('category-color').value = category.color;
+            document.getElementById('category-icon').value = category.icon || 'fas fa-question';
+            
+            // Configurar imagem se existir
+            if (category.image) {
+                const imagePreview = document.getElementById('category-image-preview');
+                const previewImg = document.getElementById('category-image-preview-img');
+                const base64Input = document.getElementById('category-image-base64');
+                
+                previewImg.src = category.image;
+                base64Input.value = category.image;
+                imagePreview.style.display = 'block';
+            }
+        }
+
+        function deleteCategory(id) {
+            if (confirm('Tem certeza que deseja excluir esta categoria? As transações associadas não serão excluídas.')) {
+                const initialLength = categories.length;
+                categories = categories.filter(c => c.id !== id);
+                
+                if (categories.length < initialLength) {
+                    saveCategories();
+                    updateCategoriesList();
+                    updateCategorySelects();
+                    showNotification('Categoria excluída!');
+                } else {
+                    showNotification('Categoria não encontrada!', 'error');
+                }
+            }
+        }
+
+        // =========================================
+        // CONFIGURAÇÕES
+        // =========================================
+        function saveSettings() {
+            const newCurrency = document.getElementById('currency-select').value;
+            const weekStart = document.getElementById('week-start').value;
+            const notifTransaction = document.getElementById('notif-transaction').checked;
+            const notifBalance = document.getElementById('notif-balance').checked;
+            
+            // Salvar configurações
+            currency = newCurrency;
+            localStorage.setItem('minhas-financas-currency', newCurrency);
+            localStorage.setItem('minhas-financas-week-start', weekStart);
+            localStorage.setItem('minhas-financas-notif-transaction', notifTransaction);
+            localStorage.setItem('minhas-financas-notif-balance', notifBalance);
+            
+            // Atualizar todos os valores formatados com nova moeda
+            updateTotalBalanceDisplay();
+            updateSummary();
+            updateRecentTransactions();
+            updateAllTransactions();
+            updateReports();
+            
+            showNotification('Configurações salvas com sucesso!');
+        }
+
+        // =========================================
+        // HISTÓRICO DO ANO COM CALENDÁRIO INFINITO
+        // =========================================
+        function updateYearHistory(year = null) {
+            const selectedYear = year || parseInt(document.getElementById('year-selector-input').value) || currentYear;
+            const container = document.getElementById('year-history');
+           
+            document.getElementById('selected-year').textContent = selectedYear;
+           
+            let yearIncome = 0;
+            let yearExpense = 0;
+           
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+           
+            let html = '';
+           
+            for (let month = 0; month < 12; month++) {
+                const monthTransactions = getMonthTransactions(selectedYear, month);
+               
+                let income = 0;
+                let expense = 0;
+               
+                monthTransactions.forEach(transaction => {
+                    if (transaction.type === 'income') {
+                        income += transaction.amount;
+                        yearIncome += transaction.amount;
+                    } else {
+                        expense += transaction.amount;
+                        yearExpense += transaction.amount;
+                    }
+                });
+               
+                const balance = income - expense;
+                const isCurrent = selectedYear === currentYear && month === currentMonth;
+               
+                html += `
+                    <div class="year-card ${isCurrent ? 'current' : ''}" onclick="showMonthDetails(${selectedYear}, ${month})">
+                        <div class="year-title">${monthNames[month]} ${selectedYear}</div>
+                        <div class="year-stats">
+                            <div class="year-stat">
+                                <span class="year-label">Ganhos:</span>
+                                <span class="year-value text-success">${formatCurrency(income)}</span>
+                            </div>
+                            <div class="year-stat">
+                                <span class="year-label">Gastos:</span>
+                                <span class="year-value text-danger">${formatCurrency(expense)}</span>
+                            </div>
+                            <div class="year-stat">
+                                <span class="year-label">Saldo:</span>
+                                <span class="year-value ${balance >= 0 ? 'text-success' : 'text-danger'}">
+                                    ${formatCurrency(balance)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+           
+            const yearBalance = yearIncome - yearExpense;
+            document.getElementById('year-total-income').textContent = formatCurrency(yearIncome);
+            document.getElementById('year-total-expense').textContent = formatCurrency(yearExpense);
+            document.getElementById('year-total-balance').textContent = formatCurrency(yearBalance);
+           
+            container.innerHTML = html || `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <p>Nenhuma transação em ${selectedYear}</p>
+                </div>
+            `;
+        }
+
+        function showMonthDetails(year, month) {
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+           
+            document.getElementById('month-details-title').textContent =
+                `Detalhes de ${monthNames[month]} ${year}`;
+           
+            const monthTransactions = getMonthTransactions(year, month);
+            const container = document.getElementById('month-transactions');
+           
+            monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+           
+            if (monthTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <p>Nenhuma transação em ${monthNames[month]} ${year}</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = monthTransactions.map(transaction => {
+                    const category = categories.find(c => c.id === transaction.categoryId);
+                    const date = new Date(transaction.date);
+                    const isToday = date.toDateString() === new Date().toDateString();
+                   
+                    // Verificar se a categoria tem imagem
+                    const iconStyle = category?.image 
+                        ? `background-image: url('${category.image}'); background-size: cover; background-position: center;`
+                        : `background: ${category?.color || '#3b82f6'};`;
+                   
+                    return `
+                        <div class="transaction-item ${transaction.type}">
+                            <div class="transaction-icon" style="${iconStyle}">
+                                ${!category?.image ? `<i class="${category?.icon || 'fas fa-question'}"></i>` : ''}
+                            </div>
+                            <div class="transaction-info">
+                                <div class="transaction-name">${transaction.description}</div>
+                                <div class="transaction-meta">
+                                    <span>${formatDate(transaction.date)} ${isToday ? '<span class="badge badge-success">Hoje</span>' : ''}</span>
+                                    <span>${category?.name || 'Sem categoria'}</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+                                ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-left: 10px;">
+                                <button onclick="editTransaction(${transaction.id})" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteTransaction(${transaction.id})" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+           
+            document.getElementById('month-details').style.display = 'block';
+            document.getElementById('month-details').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeMonthDetails() {
+            document.getElementById('month-details').style.display = 'none';
+        }
+
+        // =========================================
+        // CATEGORIAS E FILTROS
+        // =========================================
+        function updateCategorySelect(type) {
+            const select = document.getElementById('category');
+            select.innerHTML = '';
+           
+            const filteredCategories = categories.filter(c => c.type === type);
+           
+            if (filteredCategories.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma categoria disponível';
+                select.appendChild(option);
+                return;
+            }
+           
+            filteredCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        function updateCategorySelects() {
+            // Atualizar filtro de categorias para transações recentes
+            const recentFilterSelect = document.getElementById('recent-filter-category');
+            recentFilterSelect.innerHTML = '<option value="">Todas categorias</option>';
+           
+            // Atualizar filtro de categorias para todas as transações
+            const allFilterSelect = document.getElementById('all-filter-category');
+            allFilterSelect.innerHTML = '<option value="">Todas categorias</option>';
+           
+            categories.forEach(category => {
+                const option1 = document.createElement('option');
+                option1.value = category.id;
+                option1.textContent = `${category.type === 'income' ? '💰 ' : '💸 '}${category.name}`;
+                recentFilterSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = category.id;
+                option2.textContent = `${category.type === 'income' ? '💰 ' : '💸 '}${category.name}`;
+                allFilterSelect.appendChild(option2);
+            });
+           
+            // Atualizar o select do formulário com o tipo ativo
+            const activeType = document.querySelector('.type-btn.active').getAttribute('data-type');
+            updateCategorySelect(activeType);
+        }
+
+        // =========================================
+        // CONTROLES DE DATA COM CALENDÁRIO INFINITO
+        // =========================================
+        function changeYear(delta) {
+            currentYear += delta;
+            updateDateDisplay();
+            updateDashboard();
+            updateYearHistory(currentYear);
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+           
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+           
+            updateDateDisplay();
+            updateDashboard();
+        }
+
+        function goToToday() {
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth();
+            updateDateDisplay();
+            updateDashboard();
+            updateYearHistory(currentYear);
+            showNotification('Voltou para o mês atual');
+        }
+
+        function updateDateDisplay() {
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+           
+            document.getElementById('current-month-year').textContent =
+                `${monthNames[currentMonth]} ${currentYear}`;
+           
+            document.getElementById('current-year').textContent = currentYear;
+            document.getElementById('current-month').textContent = monthNames[currentMonth];
+        }
+
+        // =========================================
+        // UTILITÁRIOS
+        // =========================================
+        function getMonthTransactions(year, month) {
+            return transactions.filter(t => {
+                const date = new Date(t.date);
+                return date.getFullYear() === year && date.getMonth() === month;
+            });
+        }
+
+        function formatDate(dateString) {
+            try {
+                return new Date(dateString).toLocaleDateString('pt-BR');
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                padding: 20px 25px;
+                background: ${type === 'error' ? 'var(--danger)' : type === 'warning' ? 'var(--warning)' : 'var(--success)'};
+                color: white;
+                border-radius: 10px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: fadeIn 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                max-width: 400px;
+                font-weight: 500;
+            `;
+           
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'check-circle'}" style="font-size: 1.5rem;"></i>
+                <span>${message}</span>
+            `;
+           
+            document.body.appendChild(notification);
+           
+            setTimeout(() => {
+                notification.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
