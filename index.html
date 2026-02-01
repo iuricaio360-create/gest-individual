@@ -272,54 +272,6 @@
             color: var(--text-light);
         }
 
-        /* Painel de Saldo Inicial - COM BOTÃO VERDE */
-        .initial-balance-panel {
-            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-            border: 1px solid var(--success);
-        }
-
-        .initial-balance-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .initial-balance-title {
-            color: var(--success-dark);
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .initial-balance-form {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
-            align-items: end;
-        }
-
-        @media (max-width: 768px) {
-            .initial-balance-form {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .current-balance-display {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--success);
-        }
-
         /* Controle de Data - CALENDÁRIO INFINITO */
         .date-control {
             background: var(--card);
@@ -1071,10 +1023,6 @@
                 <i class="fas fa-tags"></i>
                 <span>Categorias</span>
             </a>
-            <a href="#" class="menu-item" data-section="balance">
-                <i class="fas fa-piggy-bank"></i>
-                <span>Saldo Inicial</span>
-            </a>
         </div>
     </div>
 
@@ -1096,33 +1044,6 @@
             <div class="current-time">
                 <div class="date" id="current-date-display">Carregando...</div>
                 <div class="time" id="current-time-display">Carregando...</div>
-            </div>
-
-            <!-- Painel de Saldo Inicial -->
-            <div class="initial-balance-panel">
-                <div class="initial-balance-header">
-                    <h3 class="initial-balance-title">
-                        <i class="fas fa-piggy-bank"></i> Saldo Inicial da Conta
-                    </h3>
-                    <div class="current-balance-display">
-                        <span style="color: var(--success-dark); margin-right: 10px;">Atual:</span>
-                        <span style="font-weight: 600; font-size: 1.2rem; color: var(--success-dark);" id="current-initial-balance">R$ 0,00</span>
-                    </div>
-                </div>
-                
-                <div class="initial-balance-form">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" style="color: var(--success-dark);">Digite o valor que você tem na conta:</label>
-                        <input type="text" class="form-input large-input" id="initial-balance-input" placeholder="0,00">
-                    </div>
-                    <!-- Botão verde para saldo inicial -->
-                    <button type="button" class="btn btn-success" id="update-initial-balance-btn">
-                        <i class="fas fa-save"></i> Atualizar Saldo
-                    </button>
-                </div>
-                <p style="margin-top: 15px; color: var(--success-dark); font-size: 0.9rem; text-align: center; opacity: 0.8;">
-                    Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
-                </p>
             </div>
 
             <!-- Controle de Data COM CALENDÁRIO INFINITO -->
@@ -1556,40 +1477,6 @@
                 </div>
             </div>
         </section>
-        
-        <!-- Seção Saldo Inicial -->
-        <section id="balance" class="site-section">
-            <div class="header">
-                <h1><i class="fas fa-piggy-bank"></i> Saldo Inicial</h1>
-                <p>Configure o saldo inicial das suas contas</p>
-            </div>
-            
-            <div class="initial-balance-panel">
-                <div class="initial-balance-header">
-                    <h3 class="initial-balance-title">
-                        <i class="fas fa-piggy-bank"></i> Saldo Inicial da Conta
-                    </h3>
-                    <div class="current-balance-display">
-                        <span style="color: var(--success-dark); margin-right: 10px;">Atual:</span>
-                        <span style="font-weight: 600; font-size: 1.2rem; color: var(--success-dark);" id="current-initial-balance-2">R$ 0,00</span>
-                    </div>
-                </div>
-                
-                <div class="initial-balance-form">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label" style="color: var(--success-dark);">Digite o valor que você tem na conta:</label>
-                        <input type="text" class="form-input large-input" id="initial-balance-input-2" placeholder="0,00">
-                    </div>
-                    <!-- Botão verde para saldo inicial -->
-                    <button type="button" class="btn btn-success" id="update-initial-balance-btn-2">
-                        <i class="fas fa-save"></i> Atualizar Saldo
-                    </button>
-                </div>
-                <p style="margin-top: 15px; color: var(--success-dark); font-size: 0.9rem; text-align: center; opacity: 0.8;">
-                    Este valor será somado ao saldo do mês para calcular seu saldo total disponível.
-                </p>
-            </div>
-        </section>
 
         <!-- Detalhes do Mês -->
         <div class="month-details" id="month-details">
@@ -1615,7 +1502,6 @@
         let currentYear = currentDate.getFullYear();
         let currentMonth = currentDate.getMonth();
         let currency = 'BRL';
-        let initialBalance = 0;
         let currentSection = 'dashboard';
         let editingCategoryId = null;
 
@@ -1743,17 +1629,6 @@
                 saveCategories();
             }
 
-            // Carregar saldo inicial
-            const savedInitialBalance = localStorage.getItem('minhas-financas-initial-balance');
-            if (savedInitialBalance) {
-                try {
-                    initialBalance = parseFloat(savedInitialBalance) || 0;
-                } catch (e) {
-                    console.error('Erro ao carregar saldo inicial:', e);
-                    initialBalance = 0;
-                }
-            }
-
             // Carregar configurações
             const savedCurrency = localStorage.getItem('minhas-financas-currency');
             if (savedCurrency) currency = savedCurrency;
@@ -1775,7 +1650,6 @@
         function saveData() {
             localStorage.setItem('minhas-financas-transactions', JSON.stringify(transactions));
             localStorage.setItem('minhas-financas-categories', JSON.stringify(categories));
-            localStorage.setItem('minhas-financas-initial-balance', initialBalance.toString());
         }
 
         function saveCategories() {
@@ -1787,12 +1661,6 @@
             document.getElementById('transaction-form').reset();
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('transaction-date').value = today;
-           
-            // Preencher campo de saldo inicial
-            document.getElementById('initial-balance-input').value = formatNumberToCurrency(initialBalance);
-            document.getElementById('initial-balance-input-2').value = formatNumberToCurrency(initialBalance);
-            document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
-            document.getElementById('current-initial-balance-2').textContent = formatCurrency(initialBalance);
            
             // Inicializar selects de categoria
             updateCategorySelects();
@@ -1839,19 +1707,6 @@
             const amountInput = document.getElementById('amount');
             amountInput.addEventListener('input', formatCurrencyInput);
             amountInput.addEventListener('blur', formatCurrencyOnBlur);
-            
-            // Formatação do campo de saldo inicial
-            const initialBalanceInput = document.getElementById('initial-balance-input');
-            initialBalanceInput.addEventListener('input', formatCurrencyInput);
-            initialBalanceInput.addEventListener('blur', formatCurrencyOnBlur);
-            
-            const initialBalanceInput2 = document.getElementById('initial-balance-input-2');
-            initialBalanceInput2.addEventListener('input', formatCurrencyInput);
-            initialBalanceInput2.addEventListener('blur', formatCurrencyOnBlur);
-            
-            // Atualizar saldo inicial
-            document.getElementById('update-initial-balance-btn').addEventListener('click', updateInitialBalance);
-            document.getElementById('update-initial-balance-btn-2').addEventListener('click', updateInitialBalance);
             
             // Seletor de tipo
             document.querySelectorAll('.type-btn').forEach(btn => {
@@ -1956,8 +1811,6 @@
                     const currentYear = new Date().getFullYear();
                     document.getElementById('year-selector-input').value = currentYear;
                     updateYearHistory(currentYear);
-                } else if (sectionId === 'balance') {
-                    document.getElementById('initial-balance-input-2').value = formatNumberToCurrency(initialBalance);
                 }
             }
         }
@@ -2004,36 +1857,10 @@
         }
 
         // =========================================
-        // SALDO INICIAL - FUNÇÃO MODIFICADA
-        // =========================================
-        function updateInitialBalance() {
-            let input;
-            if (currentSection === 'balance') {
-                input = document.getElementById('initial-balance-input-2');
-            } else {
-                input = document.getElementById('initial-balance-input');
-            }
-            
-            const value = parseCurrencyToNumber(input.value);
-            
-            if (isNaN(value) || value < 0) {
-                showNotification('Por favor, digite um valor válido!', 'error');
-                return;
-            }
-            
-            initialBalance = value;
-            saveData();
-            updateTotalBalanceDisplay();
-            document.getElementById('current-initial-balance').textContent = formatCurrency(initialBalance);
-            document.getElementById('current-initial-balance-2').textContent = formatCurrency(initialBalance);
-            showNotification('Saldo inicial atualizado com sucesso!');
-        }
-
-        // =========================================
-        // SALDO TOTAL - FUNÇÃO MODIFICADA PARA ABATER GASTOS
+        // SALDO TOTAL - AGORA APENAS COM TRANSAÇÕES
         // =========================================
         function updateTotalBalanceDisplay() {
-            // Calcular totais de TODAS as transações (não apenas do mês)
+            // Calcular totais de TODAS as transações
             let totalIncomeAll = 0;
             let totalExpenseAll = 0;
             
@@ -2045,8 +1872,8 @@
                 }
             });
             
-            // Calcular saldo total: saldo inicial + todos os ganhos - todos os gastos
-            const totalBalance = initialBalance + totalIncomeAll - totalExpenseAll;
+            // Calcular saldo total: todos os ganhos - todos os gastos
+            const totalBalance = totalIncomeAll - totalExpenseAll;
             
             // Atualizar display no header
             const balanceElement = document.getElementById('total-balance-display');
@@ -2068,7 +1895,7 @@
         }
 
         // =========================================
-        // TRANSAÇÕES - FUNÇÃO MODIFICADA PARA ATUALIZAR SALDO TOTAL
+        // TRANSAÇÕES
         // =========================================
         function addTransaction(e) {
             e.preventDefault();
@@ -2158,7 +1985,7 @@
         }
 
         // =========================================
-        // DASHBOARD - FUNÇÃO MODIFICADA
+        // DASHBOARD
         // =========================================
         function updateDashboard() {
             updateSummary();
